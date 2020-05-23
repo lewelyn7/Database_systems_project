@@ -2,14 +2,14 @@ import requests
 from bs4 import BeautifulSoup
 import csv
 
-URL = 'https://syllabuskrk.agh.edu.pl/2019-2020/pl/magnesite/study_plans/stacjonarne-informatyka'
+URL = 'https://www.syllabuskrk.agh.edu.pl/2016-2017/pl/magnesite/study_plans/stacjonarne-elektronika'
 page = requests.get(URL)
 
 soup = BeautifulSoup(page.content, 'html.parser')
 
 tables = soup.find_all('table')
 
-outfile = open("przedmioty.csv", "w")
+outfile = open("przedmioty2.csv", "w")
 csvwriter = csv.writer(outfile)
 
 for table in tables:
