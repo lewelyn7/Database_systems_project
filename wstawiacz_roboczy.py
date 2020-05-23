@@ -52,8 +52,15 @@ def create_tutors(tx, faculty_name):
             subjects = tx.run("MATCH (a:Subject { faculty : $faculty})", faculty=faculty_name)
             subject = subjects[randomnum]
         
+def create_students(tx, filename):
+    infile = open(filename, "r")
+    csvimport = csv.reader(infile)
+    for row in csvimport:
+        print(row[0])
+        tx.run("CREATE (a:Student) SET a.firstname = $firstname, a.lastname = $lastname, a.pesel = $pesel, a.student_nr = $student_nr", firstname = row[0], lastname = row[1], pesel= row[3], student_nr = row[4])
 
 with driver1.session() as session:
     session.write_transaction(create_subjects, "przedmioty.csv", "Informatyki")
     session.write_transaction(create_subjects, "przedmioty2.csv", "Elektroniki")
     session.write_transaction(create_subjects, "przedmioty3.csv", "Fizyki Medycznej")
+    session.write_transaction(create_students, "students.csv")
