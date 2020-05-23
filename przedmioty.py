@@ -9,6 +9,9 @@ soup = BeautifulSoup(page.content, 'html.parser')
 
 tables = soup.find_all('table')
 
+outfile = open("przedmioty.csv", "w")
+csvwriter = csv.writer(outfile)
+
 for table in tables:
     semnumid = table.get('id')
     semnum = str(semnumid)
@@ -18,5 +21,8 @@ for table in tables:
     tds = table.find_all('td', class_="subject_name")
     for td in tds:
         ahref = td.find('a')
-        print(ahref.text + ";" + splitted[2])
+        if "kurs obowiązkowy" in ahref.text:
+            continue
+        csvwriter.writerow([ahref.text])
+
 
