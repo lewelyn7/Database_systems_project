@@ -22,7 +22,7 @@ for table in tables:
         if(len(splitted2)==2):
             title=splitted2[1][1:-3]
             namesurname=splitted2[0].split(' ')
-            print([namesurname[0],namesurname[1],title])
-            csvwriter.writerow([namesurname[0],namesurname[1],title])
+            mail=namesurname[0][0].lower()+namesurname[1].lower()+"@agh.edu.pl"
+            csvwriter.writerow([namesurname[0],namesurname[1],title,mail])
         
     
