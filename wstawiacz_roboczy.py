@@ -58,7 +58,15 @@ def create_students(tx, filename):
     for row in csvimport:
         print(row[0])
         tx.run("CREATE (a:Student) SET a.firstname = $firstname, a.lastname = $lastname, a.pesel = $pesel, a.student_nr = $student_nr", firstname = row[0], lastname = row[1], pesel= row[3], student_nr = row[4])
-
+        if(p % 3 == 0):
+            tx.run("MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 90 and b.tier = 1 CREATE (a)-[r:Attends]->(b)", pesel=row[2])
+        if(p % 2 == 0):
+            tx.run("MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 333 and b.tier = 1 CREATE (a)-[r:Attends]->(b)", pesel=row[2])
+        if(p % 5 == 0):
+            tx.run("MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 61 and b.tier = 1 CREATE (a)-[r:Attends]->(b)", pesel=row[2])
+        
+        p += 1;
+        
 with driver1.session() as session:
     session.write_transaction(create_subjects, "przedmioty.csv", "Informatyki")
     session.write_transaction(create_subjects, "przedmioty2.csv", "Elektroniki")
