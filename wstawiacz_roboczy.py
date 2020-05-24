@@ -57,24 +57,41 @@ def create_students(tx, filename):
     infile = open(filename, "r")
     csvimport = csv.reader(infile)
     for row in csvimport:
-        print(row[0])
-        tx.run("CREATE (a:Student) SET a.firstname = $firstname, a.lastname = $lastname, a.pesel = $pesel, a.student_nr = $student_nr", firstname = row[0], lastname = row[1], pesel= row[3], student_nr = row[4])
-        if(p % 3 == 0):
-            tx.run("MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 90 and b.tier = 1 CREATE (a)-[r:Attends]->(b)", pesel=row[2])
-        elif (p% 3 == 1):
-            tx.run("MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 90 and b.tier = 1 CREATE (a)-[r:Completed]->(b)", pesel=row[2])
-        if(p % 2 == 0):
-            tx.run("MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 333 and b.tier = 1 CREATE (a)-[r:Completed]->(b)", pesel=row[2])
+        if (p % 3 == 0):
+            tx.run(
+                "MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 90 and b.tier = 1 CREATE (a)-[r:Attends]->(b)",
+                pesel=row[2])
         else:
-             tx.run("MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 333 and b.tier = 1 CREATE (a)-[r: Attends]->(b)", pesel=row[2])
-        if(p % 5 == 0):
-            tx.run("MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 61 and b.tier = 1 CREATE (a)-[r:Attends]->(b)", pesel=row[2])
-        elif(p % 5 == 3):
-            tx.run("MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 61 and b.tier = 1 CREATE (a)-[r:Completed]->(b)", pesel=row[2])
+            if (p % 3 == 1):
+                tx.run("MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 90 and b.tier = 1 CREATE (a)-[r:Completed]->(b)",
+                pesel=row[2])
+        if (p % 2 == 0):
+            tx.run(
+                "MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 333 and b.tier = 1 CREATE (a)-[r:Completed]->(b)",
+                pesel=row[2])
         else:
-            tx.run("MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 30 and b.tier = 1 CREATE (a)-[r:Completed]->(b)", pesel=row[2])
-       
-        p += 1;
+            tx.run(
+                "MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 333 and b.tier = 1 CREATE (a)-[r: Attends]->(b)",
+                pesel=row[2])
+        if (p % 5 == 0):
+            tx.run(
+                "MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 61 and b.tier = 1 CREATE (a)-[r:Attends]->(b)",
+                pesel=row[2])
+        else:
+            if (p % 5 == 3):
+                tx.run(
+                "MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 61 and b.tier = 1 CREATE (a)-[r:Completed]->(b)",
+                pesel=row[2])
+        if( p % 10 == 0):
+            tx.run(
+                "MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 30 and b.tier = 1 CREATE (a)-[r:Completed]->(b)",
+                pesel=row[2])
+        else:
+            if(p % 10 == 7):
+                tx.run(
+                    "MATCH (a:Student), (b:Subject) WHERE a.pesel = $pesel and id(b) = 30 and b.tier = 1 CREATE (a)-[r:Attends]->(b)",
+                    pesel=row[2])
+        p += 1
         
 with driver1.session() as session:
     session.write_transaction(create_subjects, "przedmioty.csv", "Informatyki")
