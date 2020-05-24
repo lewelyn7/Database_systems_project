@@ -28,6 +28,12 @@ driver1 = GraphDatabase.driver("bolt://bazy.flemingo.ovh:7687", auth=("neo4j", "
 def create_subjects(tx, filename, faculty_name):
     infile = open(filename, "r")
     csvimport = csv.reader(infile)
+    basics_1 = [90, 333, 61, 30, 22, 21, 290]
+    basics_2 = [310, 74, 38, 32, 26, 21, 301, 303, 76, 310, 324]
+    basics_3 = [322, 336, 91, 65, 33, 345, 316, 280, 273]
+    basics_4 = [331, 335, 77, 81, 24, 342, 306, 297, 278, 81, 39]
+    basics_5 = [332, 337, 31, 102, 104, 28, 277, 305, 326]
+    basics_6 = [315, 325, 70, 109, 199, 300, 275, 327, 282, 199]
     for row in csvimport:
         print(row[0])
         result = tx.run("MATCH (n:Subject { name : $name }) RETURN n", name=row[0])
@@ -37,7 +43,18 @@ def create_subjects(tx, filename, faculty_name):
             tx.run("MATCH (a:Subject { name : $name }),(b:Faculty { name : $faculty }) CREATE (a)-[r:BelongsTo]->(b)", name=row[0], faculty=faculty_name)
         else:
             tx.run("MATCH (a:Subject { name : $name }),(b:Faculty { name : $faculty }) CREATE (a)-[r:BelongsTo]->(b)", name=row[0], faculty=faculty_name)
+        
+        
+        i = randint(0, 6) #zmieniany zakres w zależności od poziomu
+        tx.run("Match (a:Subject), (b:Subject) where a.name = $name and a.tier = 2 and id(b) = $id Create (a)-[r: Require]->(b)", name = row[0], id = basics_1[i])
+        tx.run("Match (a:Subject), (b:Subject) where a.name = $name and a.tier = 3 and id(b) = $id Create (a)-[r: Require]->(b)", name = row[0], id = basics_2[i])
+        tx.run("Match (a:Subject), (b:Subject) where a.name = $name and a.tier = 4 and id(b) = $id Create (a)-[r: Require]->(b)", name = row[0], id = basics_3[i])
+        tx.run("Match (a:Subject), (b:Subject) where a.name = $name and a.tier = 5 and id(b) = $id Create (a)-[r: Require]->(b)", name = row[0], id = basics_4[i])
+        tx.run("Match (a:Subject), (b:Subject) where a.name = $name and a.tier = 6 and id(b) = $id Create (a)-[r: Require]->(b)", name = row[0], id = basics_5[i])
+        tx.run("Match (a:Subject), (b:Subject) where a.name = $name and a.tier = 7 and id(b) = $id Create (a)-[r: Require]->(b)", name = row[0], id = basics_6[i])
 
+            
+            
 def create_tutors(tx, faculty_name):
     infile = open("wykladowcy.csv", "r")  
     csvimport = csv.reader(infile)
