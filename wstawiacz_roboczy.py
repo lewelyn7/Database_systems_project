@@ -32,7 +32,8 @@ def create_subjects(tx, filename, faculty_name):
         print(row[0])
         result = tx.run("MATCH (n:Subject { name : $name }) RETURN n", name=row[0])
         if not result.single():
-            tx.run("CREATE (a:Subject) SET a.name = $name", name=row[0])
+            rand_tier = randint(1, 7)
+            tx.run("CREATE (a:Subject) SET a.name = $name, a.tier = $tier", name=row[0], tier = rand_tier)
             tx.run("MATCH (a:Subject { name : $name }),(b:Faculty { name : $faculty }) CREATE (a)-[r:BelongsTo]->(b)", name=row[0], faculty=faculty_name)
         else:
             tx.run("MATCH (a:Subject { name : $name }),(b:Faculty { name : $faculty }) CREATE (a)-[r:BelongsTo]->(b)", name=row[0], faculty=faculty_name)
