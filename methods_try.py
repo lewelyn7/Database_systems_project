@@ -37,8 +37,6 @@ def missing_required_subjects(tx, sub=None, album_nr = None):
         info.append(i[0])
     for s in required:
         subs.append(s[0])
-    subs.sort()
-    info.sort()
     difference = [x for x in subs if x not in info]
     if(len(difference) == 0):
         print("Student może iść na dany kurs")
