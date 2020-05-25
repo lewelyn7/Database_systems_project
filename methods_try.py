@@ -45,7 +45,12 @@ def missing_required_subjects(tx, sub=None, album_nr = None):
         print(difference)
 
 
-
+def faculty_subjects(tx, faculty_name):
+    subs = tx.run("MATCH (:Faculty {name : $faculty})-[r:BelongsTo]-(b) RETURN b.name", faculty = faculty_name)
+    print("Wydział", faculty_name, " prowadzi następujące przedmioty:")
+    for i in subs:
+        print(i[0])
+        
 
 with driver1.session() as session:
     session.write_transaction(tutors_courses,"Robert", "Marcjan")
@@ -53,3 +58,4 @@ with driver1.session() as session:
     session.write_transaction(tutors_who_teaches_many_subjects,4)
     session.write_transaction(required_subjects, "Fizyka 1")
     session.write_transaction(missing_required_subjects, "Fizyka 1", "220117")
+    session.write_transaction(faculty_subjects, "Elektroniki")
