@@ -1,31 +1,35 @@
 from neo4j import GraphDatabase
 import csv
+from pandas import DataFrame
 
 driver1 = GraphDatabase.driver("bolt://bazy.flemingo.ovh:7687", auth=("neo4j", "marcjansiwikania"))
 
 def tutors_courses(tx, firstname, lastname):
     subjects = tx.run("match (t:Tutor {firstname:$tname, lastname:$tlastname})-[:Teaches]->(s:Subject) return s.name", tname=firstname,tlastname=lastname)
+    print(firstname, " ",lastname,"uczy:")
     for subject in subjects:
         print(subject[0])
 
 
 def tutors_department(tx, firstname, lastname):
-    faculty = tx.run("match (t:Tutor {firstname:$fname,lastname:$flastname})-[:WorksIn]->(d:Faculty) return d.name",fname=firstname,flastname=lastname)
-    for facult in faculty:
-        print("Wydział",facult[0])
+    faculty = tx.run("match (t:Tutor {firstname:$fname,lastname:$flastname})-[:WorksIn]->(d:Faculty) return d",fname=firstname,flastname=lastname)
+    print(firstname,lastname,"należy do wydziału:")
+    # for facult in faculty:
+    faculty = [item[0] for item in faculty]
+    print(faculty[0]['name'])
+
 
 def tutors_who_teaches_many_subjects(tx, number):
-    count=tx.run("match (t:Tutor)-[r:Teaches]->() with t,count(r) as suma where suma>$num return t", num=number)
-    for c in count:
-        for attr in c:
-            print(attr['degree'],attr['firstname'],attr['lastname'],attr['mail'])
+    count=tx.run("match (t:Tutor)-[r:Teaches]->() with t,count(r) as suma where suma>$num return t.degree, t.firstname, t.lastname, t.mail", num=number)
+    print("\nProwadzący więcej niż", number,"przedmiotów:")
+    print(DataFrame(count.data()))
+  
 
 def required_subjects(tx, sub=None):
     required = tx.run("Match (p:Subject{name:$subject})-[*]->(n:Subject) return n.name", subject = sub)
-    print("Żeby rozpocząć ten kurs, musisz ukończyć następujące kursy:")
+    print("\nŻeby rozpocząć ten kurs, musisz ukończyć następujące kursy:")
     for s in required:
         print(s[0])
-        
         
         
 def missing_required_subjects(tx, sub=None, album_nr = None):
@@ -39,18 +43,28 @@ def missing_required_subjects(tx, sub=None, album_nr = None):
         subs.append(s[0])
     difference = [x for x in subs if x not in info]
     if(len(difference) == 0):
-        print("Student może iść na dany kurs")
+        print("\nStudent może iść na dany kurs")
     else:
-        print("Student musi zaliczyć następujące kursy")
+        print("\nStudent musi zaliczyć następujące kursy")
         print(difference)
 
 
 def faculty_subjects(tx, faculty_name):
-    subs = tx.run("MATCH (:Faculty {name : $faculty})-[r:BelongsTo]-(b) RETURN b.name", faculty = faculty_name)
-    print("Wydział", faculty_name, " prowadzi następujące przedmioty:")
-    for i in subs:
-        print(i[0])
-        
+    subs = tx.run("MATCH (:Faculty {name : $faculty})-[r:BelongsTo]-(b) RETURN b.name as subject_name", faculty = faculty_name)
+    print("\nWydział", faculty_name, "prowadzi następujące przedmioty:")
+    print(DataFrame(subs.data()))
+    # for i in subs:
+    #     print(i[0])
+
+def students_in_subject(tx,course_name):
+    count = tx.run("match (c:Subject {name: $course})-[:Attends]-(p:Student) return count(p)",course=course_name)
+    count = [c[0] for c in count]
+    print("\nW kursie",course_name,"uczestniczy", count[0],"studentów.")
+
+def courses_available_for_student(tx, album_nr):
+    courses = tx.run("match (s:Student {student_nr: $num})-[:Completed]->(:Subject)<-[:Require]-(sub:Subject) return sub.name", num=album_nr)
+    print("\nDostępne przedmioty dla studenta o numerze",album_nr,":")
+    return [course for course in courses]
 
 with driver1.session() as session:
     session.write_transaction(tutors_courses,"Robert", "Marcjan")
@@ -59,3 +73,5 @@ with driver1.session() as session:
     session.write_transaction(required_subjects, "Fizyka 1")
     session.write_transaction(missing_required_subjects, "Fizyka 1", "220117")
     session.write_transaction(faculty_subjects, "Elektroniki")
+    session.write_transaction(students_in_subject, "Cytofizjologia")
+    print(session.write_transaction(courses_available_for_student, "220071")[0])
