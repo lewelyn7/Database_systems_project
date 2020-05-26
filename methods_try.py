@@ -14,7 +14,6 @@ def tutors_courses(tx, firstname, lastname):
 def tutors_department(tx, firstname, lastname):
     faculty = tx.run("match (t:Tutor {firstname:$fname,lastname:$flastname})-[:WorksIn]->(d:Faculty) return d",fname=firstname,flastname=lastname)
     print(firstname,lastname,"należy do wydziału:")
-    # for facult in faculty:
     faculty = [item[0] for item in faculty]
     print(faculty[0]['name'])
 
@@ -62,9 +61,10 @@ def students_in_subject(tx,course_name):
     print("\nW kursie",course_name,"uczestniczy", count[0],"studentów.")
 
 def courses_available_for_student(tx, album_nr):
-    courses = tx.run("match (s:Student {student_nr: $num})-[:Completed]->(:Subject)<-[:Require]-(sub:Subject) return sub.name", num=album_nr)
+    courses = tx.run("match (s:Student {student_nr: $num})-[:Completed]->(:Subject)<-[:Require]-(sub:Subject) return distinct sub.name", num=album_nr)
     print("\nDostępne przedmioty dla studenta o numerze",album_nr,":")
-    return [course for course in courses]
+    lis= [course[0] for course in courses]
+    print(DataFrame(lis))
 
 with driver1.session() as session:
     session.write_transaction(tutors_courses,"Robert", "Marcjan")
@@ -74,4 +74,4 @@ with driver1.session() as session:
     session.write_transaction(missing_required_subjects, "Fizyka 1", "220117")
     session.write_transaction(faculty_subjects, "Elektroniki")
     session.write_transaction(students_in_subject, "Cytofizjologia")
-    print(session.write_transaction(courses_available_for_student, "220071")[0])
+    session.write_transaction(courses_available_for_student, "220071")
