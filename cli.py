@@ -1,8 +1,8 @@
 from cli_app import App, Command
 from pandas import DataFrame
 from src.db_helpers import DBHelpers
-class GetStudentInfo(Command):
 
+class GetStudentInfo(Command):
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--firstname", "-f", type=str, help="firstname of student", default=None, required=False)
@@ -21,7 +21,6 @@ class GetStudentInfo(Command):
 
 
 class TutorsCourses(Command):
-
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--fname", "-f", type=str, help="firstname of tutor", required=True)
@@ -37,8 +36,8 @@ class TutorsCourses(Command):
             print()
             print(DataFrame(result))        
 
+            
 class TutorsDepartment(Command):
-
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--fname", "-f", type=str, help="firstname of tutor", required=True)
@@ -54,6 +53,7 @@ class TutorsDepartment(Command):
             print()
             print(DataFrame(result))
 
+            
 class TutorsWhoTeachesManySubject(Command):
     @staticmethod
     def register_arguments(parser):
@@ -67,6 +67,27 @@ class TutorsWhoTeachesManySubject(Command):
             print("Tutors who teaches more than", number,"subjects:")
             print()
             print(DataFrame(result))
+            
+            
+class FacultyCourses(Command):
+    @staticmethod
+    def register_arguments(parser):
+        parser.add_argument("--faculty_name", "-f", type=str, help="name of faculty")
+
+    def run(self):
+        faculty_name = self.app.args.fname
+        with self.app.db.driver1.session() as session:
+            result = session.write_transaction(DBHelpers.faculty_subjects, faculty_name)
+            print()
+            print(faculty_namename + "\'s" + " courses:")
+            print()
+            print(DataFrame(result))
+            
+            
+ class RequiredCourses(Command):
+    @staticmethod
+    def register_arguments(parser):
+        parser.add_argument("--subject_name", "-f", type=str, help="name of subject")
 
 class RequiredSubjects(Command):
 
