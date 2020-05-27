@@ -241,6 +241,22 @@ class AddSubject(Command):
                 print("Subject has been added")
             else:
                 print("Adding error")
+                
+                
+                
+class SingUp(Command):
+    @staticmethod
+    def register_arguments(parser):
+        parser.add_argument("--student_nr", "-s", type=str, help="student number", required=True)
+        parser.add_argument("--course_n", "-c", type=str, help="name of corse", required=True)
+
+    def run(self):
+        student = self.app.args.s
+        course = self.app.args.c
+        with self.app.db.driver1.session() as session:
+            result = session.write_transaction(DBHelpers.sign_up, course, student)
+            if result:
+                print("Signing up successful")
 
 class Syllabus(App):
     """Syllabus app."""
