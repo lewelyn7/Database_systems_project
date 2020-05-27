@@ -278,6 +278,7 @@ class Syllabus(App):
         self.add_command("add_student", AddStudent)
         self.add_command("add_tutor", AddTutor)
         self.add_command("add_subject", AddSubject)
+        self.add_command("sign_up",SignUp)
 
 
 
