@@ -1,0 +1,8 @@
+python-csv==0.0.11
+pandas==1.0.3
+neo4j==1.7.6
+bs4==4.9.1
+requests==2.23.0
+PyQt5==5.14.2
+os-sys==2.1.4
+cli_app==0.1.0

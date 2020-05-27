@@ -84,14 +84,8 @@ class FacultyCourses(Command):
             print(DataFrame(result))
             
             
-            
-class RequiredCourses(Command):
-    @staticmethod
-    def register_arguments(parser):
-        parser.add_argument("--subject_name", "-f", type=str, help="name of subject")
 
 class RequiredSubjects(Command):
-
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--subject", "-s", type=str, help="returns all required subjects", required=True)
@@ -104,6 +98,7 @@ class RequiredSubjects(Command):
             print("Required subjects: ")
             print(DataFrame(result))
 
+            
 class MissingRequiredSubjects(Command):
     @staticmethod
     def register_arguments(parser):
@@ -136,8 +131,8 @@ class FacultySubjects(Command):
             print(fac + "'s subjects: ")
             print(DataFrame(result))
 
+            
 class StudentsInSubject(Command):
-
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--subject", "-s", type=str, help="returns students in subject", required=True)
@@ -150,6 +145,8 @@ class StudentsInSubject(Command):
             print("Students in " + sub)
             print(DataFrame(result))
 
+            
+            
 class CoursesAvailableForStudents(Command):
     """TODO"""
     @staticmethod
@@ -180,6 +177,7 @@ class ShortestSubjectPath(Command):
             print("Courses:")
             print(DataFrame(result))
 
+            
 class AddStudent(Command):
     @staticmethod
     def register_arguments(parser):
@@ -243,6 +241,22 @@ class AddSubject(Command):
                 print("Subject has been added")
             else:
                 print("Adding error")
+                
+                
+                
+class SingUp(Command):
+    @staticmethod
+    def register_arguments(parser):
+        parser.add_argument("--student_nr", "-s", type=str, help="student number", required=True)
+        parser.add_argument("--course_n", "-c", type=str, help="name of corse", required=True)
+
+    def run(self):
+        student = self.app.args.s
+        course = self.app.args.c
+        with self.app.db.driver1.session() as session:
+            result = session.write_transaction(DBHelpers.sign_up, course, student)
+            if result:
+                print("Signing up successful")
 
 class Syllabus(App):
     """Syllabus app."""
@@ -264,6 +278,7 @@ class Syllabus(App):
         self.add_command("add_student", AddStudent)
         self.add_command("add_tutor", AddTutor)
         self.add_command("add_subject", AddSubject)
+        self.add_command("sign_up",SignUp)
 
 
 
