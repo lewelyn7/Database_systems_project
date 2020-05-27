@@ -27,7 +27,7 @@ class DBHelpers:
   
     @staticmethod
     def required_subjects(tx, sub=None): # returns all required subject needed to start specified subject
-        required = tx.run("Match (p:Subject{name:$subject})-[*]->(n:Subject) return n", subject = sub)
+        required = tx.run("match (n:Subject {name:$sub}), (s:Subject {tier: 1}) with n,collect(s) as col unwind col as c with collect( case  when n in col then [] else nodes(shortestPath((c)-[:Require*]-(n))) end) as result,n unwind result as res return min(res)", sub = sub)
         return [item['n'] for item in required]
         
     @staticmethod # returns whether or not student can attend to that course
@@ -56,10 +56,12 @@ class DBHelpers:
         count = tx.run("match (c:Subject {name: $course})-[:Attends]-(p:Student) return count(p)",course=course_name)
         return [c[0] for c in count]
 
+
     @staticmethod
     def courses_available_for_student(tx, album_nr): # returns courses available for student based on his completed courses 
         courses = tx.run("match (s:Student {student_nr:$num})-[:Completed]->(comp:Subject) with collect(comp) as subs, s unwind subs as sub match (sub)<-[:Require]-(f:Subject) where not f in subs return distinct f", num=album_nr)
-        return [course['sub'] for course in courses]
+        print(course['f'] for course in courses)
+        return [course['f'] for course in courses]
 
     @staticmethod
     def get_student_info(tx, firstname=None, lastname=None, pesel=None, student_nr=None): # returns information about all student with specified firstname, surname, pesel, student_nr 
@@ -95,10 +97,21 @@ class DBHelpers:
     
     @staticmethod
     def shortest_subject_path(tx,album_nr, subject_name):  # sth like befora bu needed repair
-        path = tx.run("match (s:Student {student_nr:$num}), (n:Subject {name:$name}), p=shortestPath((s)-[:Completed | Require *]-(n)) return nodes(p) skip 1",num=album_nr, name=subject_name)
-        lis = [x[0] for x in path ]
-        print(lis)
-        print(DataFrame(lis))
+        path = tx.run("match (n:Subject {name:$sub}), (s:Subject {tier: 1}) with n,collect(s) as col unwind col as c with collect( case  when n in col then [] else nodes(shortestPath((c)-[:Require*]-(n))) end) as result,n unwind result as res return min(res)", sub = subject_name)
+        path2 = tx.run("match (student:Student {student_nr: $nr}), (find:Subject {name:$name}), p1=shortestPath((student)-[:Attends | Completed | Require *]-(find)) return nodes(p1)", nr=album_nr, name=subject_name)
+        lis1 = [x[0] for x in path ]
+        # iterator = next(iter(path2))
+        # path2 = iterator
+        lis2 = [x[0] for x in path2] 
+        print(lis2)
+        lis2=lis2[0][1:]
+        print(lis2)
+        if(len(lis1)<len(lis2)):
+            sh_path=lis1
+        else:
+            sh_path=lis2
+        print(sh_path)
+        print(DataFrame(sh_path))
         return path #trzeba tu jakoś dobrze zwracać coś ale nwm do kończa co ide spać 
 
     @staticmethod
@@ -166,11 +179,11 @@ if __name__ == "__main__":
         # print(session.write_transaction(DBHelpers.missing_required_subjects, "Fizyka 1", "220117"))
         # print(session.write_transaction(DBHelpers.faculty_subjects, "Elektroniki"))
         # print(session.write_transaction(DBHelpers.students_in_subject, "Cytofizjologia"))
-        # print(session.write_transaction(DBHelpers.courses_available_for_student, "220071"))
+        print(session.write_transaction(DBHelpers.courses_available_for_student, "220083"))
         # print(session.write_transaction(DBHelpers.get_student_info, "Alicja"))
         # session.write_transaction(DBHelpers.shortest_subject_path, "220071", "Wychowanie fizyczne 1")
         # print(session.write_transaction(DBHelpers.subjects_belong_to_few_departments))
         # print(session.write_transaction(DBHelpers.add_student, "Krystyna", "Błaszczyk", "82275931473", "320109"))
         # print(session.write_transaction(DBHelpers.add_tutor, "prof.", "Natalia", "Brzozowska", "nbrzozowska@agh.edu.pl", "Informatyki"))
         # print(session.write_transaction(DBHelpers.add_subject,"Test4",0,"Informatyki",4,"Test" ))
-        print(session.write_transaction(DBHelpers.get_tutor_info, "Robert"))
+        # print(session.write_transaction(DBHelpers.get_tutor_info, "Robert"))
