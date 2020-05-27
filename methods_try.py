@@ -94,13 +94,14 @@ class DBHelpers:
     
     @staticmethod
     def shortest_subject_path(tx,album_nr, subject_name):
-    path = tx.run("match (s:Student {student_nr:$num}), (n:Subject {name:$name}), p=shortestPath((s)-[:Completed | Require *]-(n)) return nodes(p)",num=album_nr, name=subject_name)
-    lis = [x[0] for x in path ]
-    print(DataFrame(lis))
-    # for y in lis:
-    #     if(y[labels]=='Student'):
-    #         print(y['firstname'])
-    return path
+        path = tx.run("match (s:Student {student_nr:$num}), (n:Subject {name:$name}), p=shortestPath((s)-[:Completed | Require *]-(n)) return nodes(p)",num=album_nr, name=subject_name)
+        lis = [x[0] for x in path ]
+        print(DataFrame(lis))
+        # for y in lis:
+        #     if(y[labels]=='Student'):
+        #         print(y['firstname'])
+        
+        return #path trzeba tu jakoś dobrze zwracać coś ale nwm do kończa co ide spać 
 
 session = driver1.session()
 
@@ -115,5 +116,5 @@ with driver1.session() as session:
     # session.write_transaction(DBHelpers.faculty_subjects, "Elektroniki")
     # session.write_transaction(DBHelpers.students_in_subject, "Cytofizjologia")
     # session.write_transaction(DBHelpers.courses_available_for_student, "220071")
-print(session.write_transaction(DBHelpers.get_student_info, "Alicja"))
+    print(session.write_transaction(DBHelpers.get_student_info, "Alicja"))
     session.write_transaction(DBHelpers.shortest_subject_path, "220071", "Wychowanie fizyczne 1")
