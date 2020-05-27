@@ -48,6 +48,10 @@ class Syllabus(App):
         self.add_command("student_info", GetStudentInfo)
         self.add_command("tutors_courses", TutorsCourses)
 
+# komendy sie wola tak standardowo np. python cli.py tutors_courses -f Leszek -l Siwik
+# https://github.com/jsphpl/python-cli-app
+# DataFrame() robi tabelke z danych jesli dostanie liste slownikow wiec mozna tak wyswietlac dane
+# Kazda komenda to jedna klasa no i trzeba podopisywac te klasy zeby korzystaly z tych funkcji z DBHelpers co juz mamy
 
 if __name__ == "__main__":
     app = Syllabus()
