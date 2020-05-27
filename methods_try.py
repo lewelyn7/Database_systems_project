@@ -66,12 +66,26 @@ def courses_available_for_student(tx, album_nr):
     lis= [course[0] for course in courses]
     print(DataFrame(lis))
 
+
+
+def shortest_subject_path(tx,album_nr, subject_name):
+    path = tx.run("match (s:Student {student_nr:$num}), (n:Subject {name:$name}), p=shortestPath((s)-[:Completed | Require *]-(n)) return nodes(p)",num=album_nr, name=subject_name)
+    lis = [x[0] for x in path ]
+    print(DataFrame(lis))
+    # for y in lis:
+    #     if(y[labels]=='Student'):
+    #         print(y['firstname'])
+    return path
+
+
 with driver1.session() as session:
-    session.write_transaction(tutors_courses,"Robert", "Marcjan")
+    # session.write_transaction(tutors_courses,"Robert", "Marcjan")
     session.write_transaction(tutors_department,"Robert", "Marcjan")
-    session.write_transaction(tutors_who_teaches_many_subjects,4)
-    session.write_transaction(required_subjects, "Fizyka 1")
-    session.write_transaction(missing_required_subjects, "Fizyka 1", "220117")
-    session.write_transaction(faculty_subjects, "Elektroniki")
-    session.write_transaction(students_in_subject, "Cytofizjologia")
-    session.write_transaction(courses_available_for_student, "220071")
+    # session.write_transaction(tutors_who_teaches_many_subjects,4)
+    # session.write_transaction(required_subjects, "Fizyka 1")
+    # session.write_transaction(missing_required_subjects, "Fizyka 1", "220117")
+    # session.write_transaction(faculty_subjects, "Elektroniki")
+    # session.write_transaction(students_in_subject, "Cytofizjologia")
+    # session.write_transaction(courses_available_for_student, "220071")
+    session.write_transaction(shortest_subject_path, "220071", "Wychowanie fizyczne 1")
+
