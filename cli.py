@@ -84,14 +84,8 @@ class FacultyCourses(Command):
             print(DataFrame(result))
             
             
-            
-class RequiredCourses(Command):
-    @staticmethod
-    def register_arguments(parser):
-        parser.add_argument("--subject_name", "-f", type=str, help="name of subject")
 
 class RequiredSubjects(Command):
-
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--subject", "-s", type=str, help="returns all required subjects", required=True)
@@ -104,6 +98,7 @@ class RequiredSubjects(Command):
             print("Required subjects: ")
             print(DataFrame(result))
 
+            
 class MissingRequiredSubjects(Command):
     @staticmethod
     def register_arguments(parser):
@@ -136,8 +131,8 @@ class FacultySubjects(Command):
             print(fac + "'s subjects: ")
             print(DataFrame(result))
 
+            
 class StudentsInSubject(Command):
-
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--subject", "-s", type=str, help="returns students in subject", required=True)
@@ -150,6 +145,8 @@ class StudentsInSubject(Command):
             print("Students in " + sub)
             print(DataFrame(result))
 
+            
+            
 class CoursesAvailableForStudents(Command):
     """TODO"""
     @staticmethod
@@ -180,6 +177,7 @@ class ShortestSubjectPath(Command):
             print("Courses:")
             print(DataFrame(result))
 
+            
 class AddStudent(Command):
     @staticmethod
     def register_arguments(parser):
