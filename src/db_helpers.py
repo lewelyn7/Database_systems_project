@@ -10,31 +10,27 @@ class DBHelpers:
         self.driver1 = GraphDatabase.driver(uri, auth=auth_tuple)
 
     @staticmethod
-    def tutors_courses(tx, firstname, lastname):
+    def tutors_courses(tx, firstname, lastname): # subjects which are tought by tutor
         result = tx.run("match (t:Tutor {firstname:$tname, lastname:$tlastname})-[:Teaches]->(s:Subject) return s", tname=firstname,tlastname=lastname)
         return [item['s'] for item in result]
 
-    @staticmethod
-    def tutors_department(tx, firstname, lastname):
-        faculty = tx.run("match (t:Tutor {firstname:$fname,lastname:$flastname})-[:WorksIn]->(d:Faculty) return d",fname=firstname,flastname=lastname)
-        print(firstname,lastname,"należy do wydziału:")
-        faculty = [item[0] for item in faculty]
-        print(faculty[0]['name'])
 
     @staticmethod
-    def tutors_who_teaches_many_subjects(tx, number):
-        count=tx.run("match (t:Tutor)-[r:Teaches]->() with t,count(r) as suma where suma>$num return t.degree, t.firstname, t.lastname, t.mail", num=number)
-        print("\nProwadzący więcej niż", number,"przedmiotów:")
-        print(DataFrame(count.data()))
+    def tutors_department(tx, firstname, lastname): # returns tutor's department
+        faculty = tx.run("match (t:Tutor {firstname:$fname,lastname:$flastname})-[:WorksIn]->(d:Faculty) return d",fname=firstname,flastname=lastname)
+        return [item[0] for item in faculty]
+
+    @staticmethod
+    def tutors_who_teaches_many_subjects(tx, number): # returns all tutors who teaches more than $number subjects
+        count=tx.run("match (t:Tutor)-[r:Teaches]->() with t,count(r) as suma where suma>$num return t", num=number)
+        return [item['t'] for item in count]
   
     @staticmethod
-    def required_subjects(tx, sub=None):
-        required = tx.run("Match (p:Subject{name:$subject})-[*]->(n:Subject) return n.name", subject = sub)
-        print("\nŻeby rozpocząć ten kurs, musisz ukończyć następujące kursy:")
-        for s in required:
-            print(s[0])
+    def required_subjects(tx, sub=None): # returns all required subject needed to start specified subject
+        required = tx.run("Match (p:Subject{name:$subject})-[*]->(n:Subject) return n", subject = sub)
+        return [item['n'] for item in required]
         
-    @staticmethod
+    @staticmethod # returns whether or not student can attend to that course
     def missing_required_subjects(tx, sub=None, album_nr = None):
         required = tx.run("Match (p:Subject{name:$subject})-[*]->(n:Subject) return n.name", subject = sub)
         student_info = tx.run("MATCH (:Student {student_nr : $album})-[r:Completed]-(b)RETURN b.name", album = album_nr)
@@ -46,35 +42,27 @@ class DBHelpers:
             subs.append(s[0])
         difference = [x for x in subs if x not in info]
         if(len(difference) == 0):
-            print("\nStudent może iść na dany kurs")
+            return 'ok'
         else:
-            print("\nStudent musi zaliczyć następujące kursy")
-            print(difference)
+            return difference
 
     @staticmethod
-    def faculty_subjects(tx, faculty_name):
-        subs = tx.run("MATCH (:Faculty {name : $faculty})-[r:BelongsTo]-(b) RETURN b.name as subject_name", faculty = faculty_name)
-        print("\nWydział", faculty_name, "prowadzi następujące przedmioty:")
-        print(DataFrame(subs.data()))
-        # for i in subs:
-        #     print(i[0])
+    def faculty_subjects(tx, faculty_name): # Subjects which belong to a specified department
+        subs = tx.run("MATCH (:Faculty {name : $faculty})-[r:BelongsTo]-(b) RETURN b", faculty = faculty_name)
+        return [item['b'] for item in subs]
 
     @staticmethod
-    def students_in_subject(tx,course_name):
+    def students_in_subject(tx,course_name): # return how many studenst attends to a course and their properties
         count = tx.run("match (c:Subject {name: $course})-[:Attends]-(p:Student) return count(p)",course=course_name)
-        count = [c[0] for c in count]
-        print("\nW kursie",course_name,"uczestniczy", count[0],"studentów.")
+        return [c[0] for c in count]
 
     @staticmethod
-    def courses_available_for_student(tx, album_nr):
-        courses = tx.run("match (s:Student {student_nr: $num})-[:Completed]->(:Subject)<-[:Require]-(sub:Subject) return distinct sub.name", num=album_nr)
-        print("\nDostępne przedmioty dla studenta o numerze",album_nr,":")
-        lis= [course[0] for course in courses]
-        print(DataFrame(lis))
-        return lis
+    def courses_available_for_student(tx, album_nr): # returns courses available for student based on his completed courses 
+        courses = tx.run("match (s:Student {student_nr: $num})-[:Completed]->(:Subject)<-[:Require]-(sub:Subject) return distinct sub", num=album_nr)
+        return [course['sub'] for course in courses]
 
     @staticmethod
-    def get_student_info(tx, firstname=None, lastname=None, pesel=None, student_nr=None):
+    def get_student_info(tx, firstname=None, lastname=None, pesel=None, student_nr=None): # returns information about all student with specified firstname, surname, pesel, student_nr 
         query = "MATCH (s:Student) WHERE "
         if firstname:
             query += "s.firstname = $firstname and "
@@ -90,25 +78,100 @@ class DBHelpers:
         return [item['s'] for item in result]
     
     @staticmethod
-    def shortest_subject_path(tx,album_nr, subject_name):
-        path = tx.run("match (s:Student {student_nr:$num}), (n:Subject {name:$name}), p=shortestPath((s)-[:Completed | Require *]-(n)) return nodes(p)",num=album_nr, name=subject_name)
+    def get_tutor_info(tx, firstname=None, lastname=None, degree=None, mail=None): # returns information about all tutors with specified firstname, surname, pesel, student_nr 
+        query = "MATCH (s:Tutor) WHERE "
+        if firstname:
+            query += "s.firstname = $firstname and "
+        if lastname:
+            query += "s.lastname = $lastname and "
+        if degree:
+            query += "s.degree = $degree and "
+        if mail:
+            query += "s.mail = $mail and"
+        query += " 1=1 RETURN s"
+
+        result = tx.run(query, firstname=firstname, lastname=lastname, degree=degree, mail=mail).data()
+        return [item['s'] for item in result]
+    
+    @staticmethod
+    def shortest_subject_path(tx,album_nr, subject_name):  # sth like befora bu needed repair
+        path = tx.run("match (s:Student {student_nr:$num}), (n:Subject {name:$name}), p=shortestPath((s)-[:Completed | Require *]-(n)) return nodes(p) skip 1",num=album_nr, name=subject_name)
         lis = [x[0] for x in path ]
+        print(lis)
         print(DataFrame(lis))
-        # for y in lis:
-        #     if(y[labels]=='Student'):
-        #         print(y['firstname'])
-        
-        return #path trzeba tu jakoś dobrze zwracać coś ale nwm do kończa co ide spać 
+        return path #trzeba tu jakoś dobrze zwracać coś ale nwm do kończa co ide spać 
+
+    @staticmethod
+    def subjects_belong_to_few_departments(tx): # returns subjects which belong to more than one faculty
+        subs=tx.run("match (s:Subject)-[b:BelongsTo]->(:Faculty) with s,count(b) as cou where cou>1 return s")
+        return [sub['s'] for sub in subs]
+    
+    @staticmethod
+    def add_student(tx, firstname, lastname, pesel, album_nr):
+        if(len(firstname)==0 or len(lastname)==0 or len(pesel)<11 or len(album_nr)<6):
+            return -1
+        person=tx.run("match (s: Student) where s.pesel=$pesel or s.student_nr=$album_nr return s", pesel=pesel, album_nr=album_nr)
+        if(person.data()==[]):
+            tx.run("create (n:Student {firstname:$firstname, lastname:$lastname, pesel:$pesel, student_nr:$album_nr})",firstname=firstname,lastname=lastname, pesel=pesel, album_nr=album_nr)
+            return 0
+        else:
+            return 1
+    
+    @staticmethod
+    def add_tutor(tx, degree, firstname, lastname, mail, faculty):
+        if(len(firstname)==0 or len(lastname)==0  or  '@' not in mail or len(mail)<5 or len(faculty)==0):
+            return -1
+        person=tx.run("match (s: Tutor) where s.mail=$mail return s", mail=mail)
+        if(person.data()==[]):
+            fa = tx.run("match (f:Faculty {name:$name}) return f", name=faculty)
+            if(fa.data()==[]):
+                return 1
+            
+            tx.run("match (f:Faculty {name:$name}) create (n:Tutor {firstname:$firstname, lastname:$lastname, degree:$degree, mail:$mail})-[:WorksIn]->(f)", name=faculty,firstname=firstname,lastname=lastname, degree=degree, mail=mail)
+            return 0
+        else:
+            return 1
+    
+    @staticmethod
+    def add_subject(tx, name, max_students,faculty, tier, requires=None):  #zwraca 1 jak nie dodal , 1 jak dodał ale błąd dalej był, 0 jak
+        if(len(name)==0 or len(faculty)==0  or tier<1 or tier>7 or max_students<0):
+            return -1
+        sub=tx.run("match (s: Subject) where s.name=$name return s", name=name)
+
+        if(sub.data()==[]):
+            fa = tx.run("match (f:Faculty {name:$name}) return f", name=faculty)
+            if(fa.data()==[]):
+                return -1
+
+
+            tx.run("match (f:Faculty {name:$fac}) create (n:Subject {name:$name, maxstudents:$maxst, tier:$tier})-[:BelongsTo]->(f)",name=name,maxst=max_students, tier=tier,fac=faculty)
+            
+            if requires:
+                req = tx.run("match (f:Subject {name:$requ}) return f", requ=requires)
+                if(req.data()==[]):
+                    return 1
+                else:
+                    tx.run("match (s:Subject {name: $name}), (req:Subject {name:$reqname}) create (s)-[:Require]->(req)", name=name, reqname=requires)
+            return 0
+        else:
+            return 1
+
 
 if __name__ == "__main__":
     db = DBHelpers("bolt://bazy.flemingo.ovh:7687", ("neo4j", "marcjansiwikania"))
     with db.driver1.session() as session:
-        # session.write_transaction(DBHelpers.tutors_courses,"Robert", "Marcjan")
-        # session.write_transaction(DBHelpers.tutors_department,"Robert", "Marcjan")
-        # session.write_transaction(DBHelpers.tutors_who_teaches_many_subjects,4)
-        # session.write_transaction(DBHelpers.required_subjects, "Fizyka 1")
-        # session.write_transaction(DBHelpers.missing_required_subjects, "Fizyka 1", "220117")
-        # session.write_transaction(DBHelpers.faculty_subjects, "Elektroniki")
-        # session.write_transaction(DBHelpers.students_in_subject, "Cytofizjologia")
-        # session.write_transaction(DBHelpers.courses_available_for_student, "220071")
-        print(session.write_transaction(DBHelpers.get_student_info, "Alicja"))  
+        # print(session.write_transaction(DBHelpers.tutors_courses,"Robert", "Marcjan"))
+        # print(session.write_transaction(DBHelpers.tutors_department,"Robert", "Marcjan"))
+        # print(session.write_transaction(DBHelpers.tutors_who_teaches_many_subjects,4))
+        # print(session.write_transaction(DBHelpers.required_subjects, "Fizyka 1"))
+        # print(session.write_transaction(DBHelpers.missing_required_subjects, "Fizyka 1", "220117"))
+        # print(session.write_transaction(DBHelpers.faculty_subjects, "Elektroniki"))
+        # print(session.write_transaction(DBHelpers.students_in_subject, "Cytofizjologia"))
+        # print(session.write_transaction(DBHelpers.courses_available_for_student, "220071"))
+        # print(session.write_transaction(DBHelpers.get_student_info, "Alicja"))
+        # session.write_transaction(DBHelpers.shortest_subject_path, "220071", "Wychowanie fizyczne 1")
+        # print(session.write_transaction(DBHelpers.subjects_belong_to_few_departments))
+        # print(session.write_transaction(DBHelpers.add_student, "Krystyna", "Błaszczyk", "82275931473", "320109"))
+        # print(session.write_transaction(DBHelpers.add_tutor, "prof.", "Natalia", "Brzozowska", "nbrzozowska@agh.edu.pl", "Informatyki"))
+        # print(session.write_transaction(DBHelpers.add_subject,"Test4",0,"Informatyki",4,"Test" ))
+        print(session.write_transaction(DBHelpers.get_tutor_info, "Robert"))
