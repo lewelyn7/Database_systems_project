@@ -310,6 +310,22 @@ class GetStudentsCompleted(Command):
             result = session.write_transaction(DBHelpers.get_student_completed_courses, fname, lname, pesel, album)
             print(DataFrame(result))
 
+#not documented
+class CompleteCourse(Command):
+    @staticmethod
+    def register_arguments(parser):
+        parser.add_argument("--student_nr", "-s", type=str, help="student number", required=True)
+        parser.add_argument("--course_n", "-c", type=str, help="name of corse", required=True)
+
+    def run(self):
+        student = self.app.args.s
+        course = self.app.args.c
+        with self.app.db.driver1.session() as session:
+            result = session.write_transaction(DBHelpers.complete_course, course, student)
+            if result:
+                print("Signing up successful")
+
+
 class Syllabus(App):
     """Syllabus app."""
     def __init__(self):
@@ -334,6 +350,7 @@ class Syllabus(App):
         self.add_command("get_students_completed", GetStudentsCompleted)
         self.add_command("add_subject", AddSubject)
         self.add_command("sign_up",SignUp)
+        self.add_command("complete_course",CompleteCourse)
 
 
 
