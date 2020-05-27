@@ -37,6 +37,36 @@ class TutorsCourses(Command):
             print()
             print(DataFrame(result))        
 
+class TutorsDepartment(Command):
+
+    @staticmethod
+    def register_arguments(parser):
+        parser.add_argument("--fname", "-f", type=str, help="firstname of tutor", required=True)
+        parser.add_argument("--lname", "-l", type=str, help="lastname of tutor", required=True)
+
+    def run(self):
+        fname = self.app.args.fname
+        lname = self.app.args.lname
+        with self.app.db.driver1.session() as session:
+            result = session.write_transaction(DBHelpers.tutors_department, fname, lname)
+            print()
+            print(fname + " " + lname + "\'s" + " courses:")
+            print()
+            print(DataFrame(result))
+
+class TutorsWhoTeachesManySubject(Command):
+    @staticmethod
+    def register_arguments(parser):
+        parser.add_argument("--number", "-n", type=str, help="number of subjects to compare", required=True)
+
+    def run(self):
+        number = self.app.args.number
+        with self.app.db.driver1.session() as session:
+            result = session.write_transaction(DBHelpers.tutors_who_teaches_many_subjects, number)
+            print()
+            print("Tutors who teaches more than", number,"subjects:")
+            print()
+            print(DataFrame(result))
 
 class Syllabus(App):
     """Syllabus app."""
@@ -47,6 +77,12 @@ class Syllabus(App):
     def register_commands(self):
         self.add_command("student_info", GetStudentInfo)
         self.add_command("tutors_courses", TutorsCourses)
+        self.add_command("tutors_department", TutorsDepartment)
+        self.add_command("tutors_who_teaches_many_subjects", TutorsWhoTeachesManySubject)
+        self.add_command("tutors_department", TutorsDepartment)
+        self.add_command("tutors_department", TutorsDepartment)
+
+
 
 # komendy sie wola tak standardowo np. python cli.py tutors_courses -f Leszek -l Siwik
 # https://github.com/jsphpl/python-cli-app

@@ -143,7 +143,6 @@ class DBHelpers:
             if(fa.data()==[]):
                 return -1
 
-
             tx.run("match (f:Faculty {name:$fac}) create (n:Subject {name:$name, maxstudents:$maxst, tier:$tier})-[:BelongsTo]->(f)",name=name,maxst=max_students, tier=tier,fac=faculty)
             
             if requires:
