@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DialogStudentInfo</class>
- <widget class="QDialog" name="DialogStudentInfo">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>404</width>
-    <height>222</height>
+    <width>400</width>
+    <height>122</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,44 +17,18 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Firstname</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Pesel</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
       <string>Album number</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QLineEdit" name="lineEdit_3"/>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLineEdit" name="lineEdit"/>
-   </item>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="lineEdit_4"/>
-   </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
-      <string>Lastname</string>
+      <string>Subject name</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="lineEdit_2"/>
-   </item>
-   <item row="4" column="1">
+   <item row="2" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -64,12 +38,11 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
-    <widget class="QLabel" name="label_info">
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="lineEdit"/>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="lineEdit_2"/>
    </item>
   </layout>
  </widget>
@@ -78,70 +51,53 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>DialogStudentInfo</receiver>
+   <receiver>Dialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>324</x>
-     <y>172</y>
+     <x>196</x>
+     <y>96</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
-     <y>197</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>DialogStudentInfo</receiver>
+   <receiver>Dialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>392</x>
-     <y>178</y>
+     <x>196</x>
+     <y>102</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
-     <y>197</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>buttonBox</sender>
    <signal>clicked(QAbstractButton*)</signal>
-   <receiver>DialogStudentInfo</receiver>
+   <receiver>Dialog</receiver>
    <slot>OkClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>255</x>
-     <y>172</y>
+     <x>58</x>
+     <y>103</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>-5</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>clicked(QAbstractButton*)</signal>
-   <receiver>DialogStudentInfo</receiver>
-   <slot>CancelClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>374</x>
-     <y>172</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>102</x>
-     <y>4</y>
+     <x>131</x>
+     <y>-8</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
   <slot>OkClicked()</slot>
-  <slot>CancelClicked()</slot>
  </slots>
 </ui>
