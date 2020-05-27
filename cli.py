@@ -79,12 +79,13 @@ class FacultyCourses(Command):
         with self.app.db.driver1.session() as session:
             result = session.write_transaction(DBHelpers.faculty_subjects, faculty_name)
             print()
-            print(faculty_namename + "\'s" + " courses:")
+            print(faculty_name + "\'s" + " courses:")
             print()
             print(DataFrame(result))
             
             
- class RequiredCourses(Command):
+            
+class RequiredCourses(Command):
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--subject_name", "-f", type=str, help="name of subject")
