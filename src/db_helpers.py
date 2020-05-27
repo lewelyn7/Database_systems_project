@@ -96,6 +96,38 @@ class DBHelpers:
         return [item['s'] for item in result]
     
     @staticmethod
+    def get_student_completed_courses(tx, firstname=None, lastname=None, pesel=None, student_nr=None): # returns information about all student with specified firstname, surname, pesel, student_nr 
+        query = "MATCH (s:Student)-[:Completed]->(sub:Subject) WHERE "
+        if firstname:
+            query += "s.firstname = $firstname and "
+        if lastname:
+            query += "s.lastname = $lastname and "
+        if pesel:
+            query += "s.pesel = $pesel and "
+        if student_nr:
+            query += "s.student_nr = $student_nr and"
+        query += " 1=1  return sub"
+
+        result = tx.run(query, firstname=firstname, lastname=lastname, pesel=pesel, student_nr=student_nr).data()
+        return [item['sub'] for item in result]
+    
+    @staticmethod
+    def get_student_attends_courses(tx, firstname=None, lastname=None, pesel=None, student_nr=None): # returns information about all student with specified firstname, surname, pesel, student_nr 
+        query = "MATCH (s:Student)-[:Attends]->(sub:Subject) WHERE "
+        if firstname:
+            query += "s.firstname = $firstname and "
+        if lastname:
+            query += "s.lastname = $lastname and "
+        if pesel:
+            query += "s.pesel = $pesel and "
+        if student_nr:
+            query += "s.student_nr = $student_nr and"
+        query += " 1=1  return sub"
+
+        result = tx.run(query, firstname=firstname, lastname=lastname, pesel=pesel, student_nr=student_nr).data()
+        return [item['sub'] for item in result]
+
+    @staticmethod
     def shortest_subject_path(tx,album_nr, subject_name):  # sth like befora bu needed repair
         path = tx.run("match (n:Subject {name:$sub}), (s:Subject {tier: 1}) with n,collect(s) as col unwind col as c with collect( case  when n in col then [] else nodes(shortestPath((c)-[:Require*]-(n))) end) as result,n unwind result as res return min(res)", sub = subject_name)
         path2 = tx.run("match (student:Student {student_nr: $nr}), (find:Subject {name:$name}), p1=shortestPath((student)-[:Attends | Completed | Require *]-(find)) return nodes(p1)", nr=album_nr, name=subject_name)
@@ -187,3 +219,5 @@ if __name__ == "__main__":
         # print(session.write_transaction(DBHelpers.add_tutor, "prof.", "Natalia", "Brzozowska", "nbrzozowska@agh.edu.pl", "Informatyki"))
         # print(session.write_transaction(DBHelpers.add_subject,"Test4",0,"Informatyki",4,"Test" ))
         # print(session.write_transaction(DBHelpers.get_tutor_info, "Robert"))
+        print(session.write_transaction(DBHelpers.get_student_completed_courses, "Alicja"))
+        print(session.write_transaction(DBHelpers.get_student_attends_courses, "Alicja"))
