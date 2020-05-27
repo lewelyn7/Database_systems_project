@@ -3,7 +3,6 @@ import csv
 from pandas import DataFrame
 
 
-driver1 = GraphDatabase.driver("bolt://bazy.flemingo.ovh:7687", auth=("neo4j", "marcjansiwikania"))
 
 class DBHelpers:
     def __init__(self, uri, auth_tuple):
@@ -12,10 +11,8 @@ class DBHelpers:
 
     @staticmethod
     def tutors_courses(tx, firstname, lastname):
-        subjects = tx.run("match (t:Tutor {firstname:$tname, lastname:$tlastname})-[:Teaches]->(s:Subject) return s.name", tname=firstname,tlastname=lastname)
-        print(firstname, " ",lastname,"uczy:")
-        for subject in subjects:
-            print(subject[0])
+        result = tx.run("match (t:Tutor {firstname:$tname, lastname:$tlastname})-[:Teaches]->(s:Subject) return s", tname=firstname,tlastname=lastname)
+        return [item['s'] for item in result]
 
     @staticmethod
     def tutors_department(tx, firstname, lastname):
@@ -92,14 +89,15 @@ class DBHelpers:
         result = tx.run(query, firstname=firstname, lastname=lastname, pesel=pesel, student_nr=student_nr).data()
         return [item['s'] for item in result]
 
-session = driver1.session()
-
-    # session.write_transaction(DBHelpers.tutors_courses,"Robert", "Marcjan")
-    # session.write_transaction(DBHelpers.tutors_department,"Robert", "Marcjan")
-    # session.write_transaction(DBHelpers.tutors_who_teaches_many_subjects,4)
-    # session.write_transaction(DBHelpers.required_subjects, "Fizyka 1")
-    # session.write_transaction(DBHelpers.missing_required_subjects, "Fizyka 1", "220117")
-    # session.write_transaction(DBHelpers.faculty_subjects, "Elektroniki")
-    # session.write_transaction(DBHelpers.students_in_subject, "Cytofizjologia")
-    # session.write_transaction(DBHelpers.courses_available_for_student, "220071")
-print(session.write_transaction(DBHelpers.get_student_info, "Alicja"))
+if __name__ == "__main__":
+    db = DBHelpers("bolt://bazy.flemingo.ovh:7687", ("neo4j", "marcjansiwikania"))
+    with db.driver1.session() as session:
+        # session.write_transaction(DBHelpers.tutors_courses,"Robert", "Marcjan")
+        # session.write_transaction(DBHelpers.tutors_department,"Robert", "Marcjan")
+        # session.write_transaction(DBHelpers.tutors_who_teaches_many_subjects,4)
+        # session.write_transaction(DBHelpers.required_subjects, "Fizyka 1")
+        # session.write_transaction(DBHelpers.missing_required_subjects, "Fizyka 1", "220117")
+        # session.write_transaction(DBHelpers.faculty_subjects, "Elektroniki")
+        # session.write_transaction(DBHelpers.students_in_subject, "Cytofizjologia")
+        # session.write_transaction(DBHelpers.courses_available_for_student, "220071")
+        print(session.write_transaction(DBHelpers.get_student_info, "Alicja"))  
