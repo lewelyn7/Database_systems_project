@@ -1,8 +1,8 @@
 from cli_app import App, Command
 from pandas import DataFrame
 from src.db_helpers import DBHelpers
-class GetStudentInfo(Command):
 
+class GetStudentInfo(Command):
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--firstname", "-f", type=str, help="firstname of student", default=None, required=False)
@@ -21,7 +21,6 @@ class GetStudentInfo(Command):
 
 
 class TutorsCourses(Command):
-
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--fname", "-f", type=str, help="firstname of tutor", required=True)
@@ -39,7 +38,6 @@ class TutorsCourses(Command):
 
             
 class TutorsDepartment(Command):
-
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--fname", "-f", type=str, help="firstname of tutor", required=True)
@@ -85,8 +83,8 @@ class FacultyCourses(Command):
             print()
             print(DataFrame(result))
             
+            
  class RequiredCourses(Command):
-
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--subject_name", "-f", type=str, help="name of subject")
