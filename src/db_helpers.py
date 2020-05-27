@@ -199,6 +199,21 @@ class DBHelpers:
             return 0
         else:
             return 1
+        
+        
+    @staticmethod   
+    def sign_up(tx, course_name, student_nr):
+        if(tx.run("MATCH (s:Student {student_nr : $number})-[r:Attends]->(n:Subject {name : $name}) RETURN count(r)", number = student_nr, name = course_name).single()[0] != 0 ):
+            print("Student już uczęszcza na ten kurs")
+            return False
+        if(DBHelpers.missing_required_subjects(tx, course_name, student_nr) == 'ok'):
+            tx.run("Create (s:Student {student_nr : $number})-[:Attends]->(n:Subject {name : $name})", number = student_nr, name = course_name)
+            print("Zapisanie na kurs zakończone sukcesem")
+            return True
+        else:
+            print("Student nie spełnia wymagań kursu")
+            return False
+
 
 
 if __name__ == "__main__":
