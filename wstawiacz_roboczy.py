@@ -53,23 +53,22 @@ def create_subjects(tx, filename, faculty_name):
         tx.run("Match (a:Subject), (b:Subject) where a.name = $name and a.tier = 6 and id(b) = $id Create (a)-[r: Require]->(b)", name = row[0], id = basics_5[i])
         tx.run("Match (a:Subject), (b:Subject) where a.name = $name and a.tier = 7 and id(b) = $id Create (a)-[r: Require]->(b)", name = row[0], id = basics_6[i])
 
-            
-            
-def create_tutors(tx, faculty_name):
-    infile = open("wykladowcy.csv", "r")  
+def create_tutors(tx, lecturers_file, faculty_name):
+    infile = open(lecturers_file, "r")  
     csvimport = csv.reader(infile)
+    subjectnum = tx.run("MATCH (a:Subject)-[r:BelongsTo]->(b:Faculty { name : $faculty }) WITH count(a) AS value RETURN value", faculty=faculty_name).single()[0]
+    subjects = list(tx.run("MATCH (a:Subject)-[r:BelongsTo]->(b:Faculty {name : $faculty}) RETURN a", faculty=faculty_name).__iter__())
+    print(subjectnum)
     for row in csvimport:
         print(row[0])
         tx.run("CREATE (a:Tutor) SET a.firstname = $firstname, a.lastname = $lastname, a.mail = $mail, a.degree = $degree", firstname=row[1], lastname=row[0], mail=row[3], degree=row[2])
-        tx.run("MATCH (a:Tutor { firstname: $firstname, lastname: $lastname}), (b:Faculty { name : $faculty }) CREATE (a)-[r:WorksIn]->(b)")
-        subjectnum = tx.run("MATCH (a:Faculty { name = $faculty}) WITH count(a) AS value RETURN value", faculty=faculty_name).single()[0]
+        tx.run("MATCH (a:Tutor { firstname: $firstname, lastname: $lastname}), (b:Faculty { name : $faculty }) CREATE (a)-[r:WorksIn]->(b)", firstname=row[1], lastname=row[0], faculty=faculty_name)
         
-        numberofsubjects = randint(1,4)
+        numberofsubjects = randint(1,5)
         for i in range(numberofsubjects):
-            randomnum = randint(0, subjectnum)
-            subjects = tx.run("MATCH (a:Subject { faculty : $faculty})", faculty=faculty_name)
-            subject = subjects[randomnum]
-        
+            randomnum = randint(0, subjectnum-1)
+            tx.run("MATCH (a:Tutor { firstname: $firstname, lastname: $lastname}), (s:Subject { name : $subject }) CREATE (a)-[r:Teaches]->(s)", firstname=row[1], lastname=row[0], subject=subjects[randomnum]["a"]["name"])
+
 def create_students(tx, filename):
     infile = open(filename, "r")
     csvimport = csv.reader(infile)
