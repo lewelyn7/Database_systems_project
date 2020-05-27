@@ -85,6 +85,22 @@ class FacultyCourses(Command):
             print()
             print(DataFrame(result))
             
+ class RequiredCourses(Command):
+
+    @staticmethod
+    def register_arguments(parser):
+        parser.add_argument("--subject_name", "-f", type=str, help="name of subject")
+
+    def run(self):
+        subject_name = self.app.args.fname
+        with self.app.db.driver1.session() as session:
+            result = session.write_transaction(DBHelpers.required_subjects, subject_name)
+            print()
+            print(subject_name + " require these courses:")
+            print()
+            print(DataFrame(result))
+
+            
             
 class Syllabus(App):
     """Syllabus app."""
@@ -97,8 +113,8 @@ class Syllabus(App):
         self.add_command("tutors_courses", TutorsCourses)
         self.add_command("tutors_department", TutorsDepartment)
         self.add_command("tutors_who_teaches_many_subjects", TutorsWhoTeachesManySubject)
-        self.add_command("tutors_department", FacultyCourses)
-        self.add_command("tutors_department", TutorsDepartment)
+        self.add_command("faculty_courses", FacultyCourses)
+        self.add_command("required_courses", RequiredCourses)
 
 
 
