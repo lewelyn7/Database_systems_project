@@ -25,21 +25,24 @@ class DBHelpers:
         count=tx.run("match (t:Tutor)-[r:Teaches]->() with t,count(r) as suma where suma>$num return t", num=number)
         return [item['t'] for item in count]
   
-    @staticmethod
-    def required_subjects(tx, sub=None): # returns all required subject needed to start specified subject
-        required = tx.run("match (n:Subject {name:$sub}), (s:Subject {tier: 1}) with n,collect(s) as col unwind col as c with collect( case  when n in col then [] else nodes(shortestPath((c)-[:Require*]-(n))) end) as result,n unwind result as res return min(res)", sub = sub)
+#fixed
+    @staticmethod 
+    def required_subjects(tx, sub): # returns all required subject needed to start specified subject
+        required = tx.run("match (n:Subject {name:$sub}), (s:Subject {tier: 1}) with n,collect(s) as col unwind col as c with collect( case  when n in col then [] else nodes(shortestPath((c)-[:Require*]-(n))) end) as result,n unwind result as res return min(res) as n", sub = sub)
         return [item['n'] for item in required]
-        
+    
+ #fixed
     @staticmethod # returns whether or not student can attend to that course
-    def missing_required_subjects(tx, sub=None, album_nr = None):
-        required = tx.run("Match (p:Subject{name:$subject})-[*]->(n:Subject) return n.name", subject = sub)
-        student_info = tx.run("MATCH (:Student {student_nr : $album})-[r:Completed]-(b)RETURN b.name", album = album_nr)
+    def missing_required_subjects(tx, sub, album_nr):
+        required = tx.run("match (n:Subject {name:$sub}), (s:Subject {tier: 1}) with n,collect(s) as col unwind col as c with collect( case  when n in col then [] else nodes(shortestPath((c)-[:Require*]-(n))) end) as result,n unwind result as res return min(res) as n", sub = sub)
+        student_info = tx.run("MATCH (:Student {student_nr : $album})-[r:Completed | Attends]-(b)RETURN b.name", album = album_nr)
         subs = []
         info=[]
         for i in student_info:
             info.append(i[0])
         for s in required:
             subs.append(s[0])
+
         difference = [x for x in subs if x not in info]
         if(len(difference) == 0):
             return 'ok'
@@ -56,11 +59,10 @@ class DBHelpers:
         count = tx.run("match (c:Subject {name: $course})-[:Attends]-(p:Student) return count(p)",course=course_name)
         return [c[0] for c in count]
 
-
+#fixed
     @staticmethod
     def courses_available_for_student(tx, album_nr): # returns courses available for student based on his completed courses 
         courses = tx.run("match (s:Student {student_nr:$num})-[:Completed]->(comp:Subject) with collect(comp) as subs, s unwind subs as sub match (sub)<-[:Require]-(f:Subject) where not f in subs return distinct f", num=album_nr)
-        print(course['f'] for course in courses)
         return [course['f'] for course in courses]
 
     @staticmethod
@@ -94,7 +96,8 @@ class DBHelpers:
 
         result = tx.run(query, firstname=firstname, lastname=lastname, degree=degree, mail=mail).data()
         return [item['s'] for item in result]
-    
+
+
     @staticmethod
     def get_student_completed_courses(tx, firstname=None, lastname=None, pesel=None, student_nr=None): # returns information about all student with specified firstname, surname, pesel, student_nr 
         query = "MATCH (s:Student)-[:Completed]->(sub:Subject) WHERE "
@@ -110,7 +113,7 @@ class DBHelpers:
 
         result = tx.run(query, firstname=firstname, lastname=lastname, pesel=pesel, student_nr=student_nr).data()
         return [item['sub'] for item in result]
-    
+
     @staticmethod
     def get_student_attends_courses(tx, firstname=None, lastname=None, pesel=None, student_nr=None): # returns information about all student with specified firstname, surname, pesel, student_nr 
         query = "MATCH (s:Student)-[:Attends]->(sub:Subject) WHERE "
@@ -127,24 +130,22 @@ class DBHelpers:
         result = tx.run(query, firstname=firstname, lastname=lastname, pesel=pesel, student_nr=student_nr).data()
         return [item['sub'] for item in result]
 
+#does the same as missing_required_subjects but in other way
     @staticmethod
-    def shortest_subject_path(tx,album_nr, subject_name):  # sth like befora bu needed repair
+    def shortest_subject_path(tx,album_nr, subject_name): 
         path = tx.run("match (n:Subject {name:$sub}), (s:Subject {tier: 1}) with n,collect(s) as col unwind col as c with collect( case  when n in col then [] else nodes(shortestPath((c)-[:Require*]-(n))) end) as result,n unwind result as res return min(res)", sub = subject_name)
-        path2 = tx.run("match (student:Student {student_nr: $nr}), (find:Subject {name:$name}), p1=shortestPath((student)-[:Attends | Completed | Require *]-(find)) return nodes(p1)", nr=album_nr, name=subject_name)
+        path2 = tx.run("match (find:Subject {name:$name}), (student:Student {student_nr:$nr})-[completed:Completed | Attends]-(sub), p1=shortestPath((sub)-[:Require*]-(find)) return  nodes(p1) order by size(nodes(p1)) LIMIT 1", nr=album_nr, name=subject_name)
         lis1 = [x[0] for x in path ]
-        # iterator = next(iter(path2))
-        # path2 = iterator
         lis2 = [x[0] for x in path2] 
-        print(lis2)
-        lis2=lis2[0][1:]
-        print(lis2)
+        
         if(len(lis1)<len(lis2)):
             sh_path=lis1
         else:
             sh_path=lis2
-        print(sh_path)
-        print(DataFrame(sh_path))
-        return path #trzeba tu jakoś dobrze zwracać coś ale nwm do kończa co ide spać 
+
+        if(len(lis2)==0):
+            sh_path=lis1
+        return sh_path 
 
     @staticmethod
     def subjects_belong_to_few_departments(tx): # returns subjects which belong to more than one faculty
@@ -204,14 +205,13 @@ class DBHelpers:
     @staticmethod   
     def sign_up(tx, course_name, student_nr):
         if(tx.run("MATCH (s:Student {student_nr : $number})-[r:Attends]->(n:Subject {name : $name}) RETURN count(r)", number = student_nr, name = course_name).single()[0] != 0 ):
-            print("Student już uczęszcza na ten kurs")
+            print("Student has already been signed up for this course")
             return False
         if(DBHelpers.missing_required_subjects(tx, course_name, student_nr) == 'ok'):
             tx.run("Create (s:Student {student_nr : $number})-[:Attends]->(n:Subject {name : $name})", number = student_nr, name = course_name)
-            print("Zapisanie na kurs zakończone sukcesem")
             return True
         else:
-            print("Student nie spełnia wymagań kursu")
+            print("Student cannot be signed up - requirements not met")
             return False
 
 
@@ -223,16 +223,17 @@ if __name__ == "__main__":
         # print(session.write_transaction(DBHelpers.tutors_department,"Robert", "Marcjan"))
         # print(session.write_transaction(DBHelpers.tutors_who_teaches_many_subjects,4))
         # print(session.write_transaction(DBHelpers.required_subjects, "Fizyka 1"))
-        # print(session.write_transaction(DBHelpers.missing_required_subjects, "Fizyka 1", "220117"))
+        print(session.write_transaction(DBHelpers.missing_required_subjects, "Fizyka 1", "220117"))
         # print(session.write_transaction(DBHelpers.faculty_subjects, "Elektroniki"))
         # print(session.write_transaction(DBHelpers.students_in_subject, "Cytofizjologia"))
-        print(session.write_transaction(DBHelpers.courses_available_for_student, "220083"))
+        # print(session.write_transaction(DBHelpers.courses_available_for_student, "220083"))
         # print(session.write_transaction(DBHelpers.get_student_info, "Alicja"))
-        # session.write_transaction(DBHelpers.shortest_subject_path, "220071", "Wychowanie fizyczne 1")
+        print(session.write_transaction(DBHelpers.shortest_subject_path, "220117", "Fizyka 1"))
         # print(session.write_transaction(DBHelpers.subjects_belong_to_few_departments))
         # print(session.write_transaction(DBHelpers.add_student, "Krystyna", "Błaszczyk", "82275931473", "320109"))
         # print(session.write_transaction(DBHelpers.add_tutor, "prof.", "Natalia", "Brzozowska", "nbrzozowska@agh.edu.pl", "Informatyki"))
         # print(session.write_transaction(DBHelpers.add_subject,"Test4",0,"Informatyki",4,"Test" ))
         # print(session.write_transaction(DBHelpers.get_tutor_info, "Robert"))
-        print(session.write_transaction(DBHelpers.get_student_completed_courses, "Alicja"))
-        print(session.write_transaction(DBHelpers.get_student_attends_courses, "Alicja"))
+
+        # print(session.write_transaction(DBHelpers.get_student_completed_courses, "Alicja"))
+        # print(session.write_transaction(DBHelpers.get_student_attends_courses, "Alicja"))
