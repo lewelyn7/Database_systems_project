@@ -37,6 +37,7 @@ class TutorsCourses(Command):
             print()
             print(DataFrame(result))        
 
+            
 class TutorsDepartment(Command):
 
     @staticmethod
@@ -54,6 +55,7 @@ class TutorsDepartment(Command):
             print()
             print(DataFrame(result))
 
+            
 class TutorsWhoTeachesManySubject(Command):
     @staticmethod
     def register_arguments(parser):
@@ -67,7 +69,23 @@ class TutorsWhoTeachesManySubject(Command):
             print("Tutors who teaches more than", number,"subjects:")
             print()
             print(DataFrame(result))
+            
+            
+class FacultyCourses(Command):
+    @staticmethod
+    def register_arguments(parser):
+        parser.add_argument("--faculty_name", "-f", type=str, help="name of faculty")
 
+    def run(self):
+        faculty_name = self.app.args.fname
+        with self.app.db.driver1.session() as session:
+            result = session.write_transaction(DBHelpers.faculty_subjects, faculty_name)
+            print()
+            print(faculty_namename + "\'s" + " courses:")
+            print()
+            print(DataFrame(result))
+            
+            
 class Syllabus(App):
     """Syllabus app."""
     def __init__(self):
@@ -79,7 +97,7 @@ class Syllabus(App):
         self.add_command("tutors_courses", TutorsCourses)
         self.add_command("tutors_department", TutorsDepartment)
         self.add_command("tutors_who_teaches_many_subjects", TutorsWhoTeachesManySubject)
-        self.add_command("tutors_department", TutorsDepartment)
+        self.add_command("tutors_department", FacultyCourses)
         self.add_command("tutors_department", TutorsDepartment)
 
 
