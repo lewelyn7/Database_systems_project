@@ -88,6 +88,17 @@ class DBHelpers:
 
         result = tx.run(query, firstname=firstname, lastname=lastname, pesel=pesel, student_nr=student_nr).data()
         return [item['s'] for item in result]
+    
+    @staticmethod
+    def shortest_subject_path(tx,album_nr, subject_name):
+        path = tx.run("match (s:Student {student_nr:$num}), (n:Subject {name:$name}), p=shortestPath((s)-[:Completed | Require *]-(n)) return nodes(p)",num=album_nr, name=subject_name)
+        lis = [x[0] for x in path ]
+        print(DataFrame(lis))
+        # for y in lis:
+        #     if(y[labels]=='Student'):
+        #         print(y['firstname'])
+        
+        return #path trzeba tu jakoś dobrze zwracać coś ale nwm do kończa co ide spać 
 
 if __name__ == "__main__":
     db = DBHelpers("bolt://bazy.flemingo.ovh:7687", ("neo4j", "marcjansiwikania"))
