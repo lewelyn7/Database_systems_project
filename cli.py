@@ -5,14 +5,14 @@ class GetStudentInfo(Command):
 
     @staticmethod
     def register_arguments(parser):
-        parser.add_argument("--fname", "-f", type=str, help="firstname of student", default=None, required=False)
-        parser.add_argument("--lname", "-l", type=str, help="lastname of student", default=None, required=False)
+        parser.add_argument("--firstname", "-f", type=str, help="firstname of student", default=None, required=False)
+        parser.add_argument("--lastname", "-l", type=str, help="lastname of student", default=None, required=False)
         parser.add_argument("--pesel", "-p", type=str, help="pesel of student", default=None, required=False)
         parser.add_argument("--album", "-a", type=str, help="album number of student", default=None, required=False)
 
     def run(self):
-        fname = self.app.args.fname
-        lname = self.app.args.lname
+        fname = self.app.args.firstname
+        lname = self.app.args.lastname
         pesel = self.app.args.pesel
         album = self.app.args.album
         with self.app.db.driver1.session() as session:
@@ -24,8 +24,8 @@ class TutorsCourses(Command):
 
     @staticmethod
     def register_arguments(parser):
-        parser.add_argument("--fname", "-f", type=str, help="firstname of tutor")
-        parser.add_argument("--lname", "-l", type=str, help="lastname of tutor")
+        parser.add_argument("--fname", "-f", type=str, help="firstname of tutor", required=True)
+        parser.add_argument("--lname", "-l", type=str, help="lastname of tutor", required=True)
 
     def run(self):
         fname = self.app.args.fname
