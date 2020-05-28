@@ -67,7 +67,7 @@ class TutorsDepartment(Command):
         with self.app.db.driver1.session() as session:
             result = session.write_transaction(DBHelpers.tutors_department, fname, lname)
             print()
-            print(fname + " " + lname + "\'s" + " courses:")
+            print(fname + " " + lname + "\'s" + " faculty:")
             print()
             print(DataFrame(result))
 
@@ -87,17 +87,17 @@ class TutorsWhoTeachesManySubject(Command):
             print(DataFrame(result))
             
             
-class FacultyCourses(Command):
+class FewDapartmentsSubjects(Command):
     @staticmethod
     def register_arguments(parser):
-        parser.add_argument("--faculty_name", "-f", type=str, help="name of faculty")
+        pass
 
     def run(self):
         faculty_name = self.app.args.fname
         with self.app.db.driver1.session() as session:
-            result = session.write_transaction(DBHelpers.faculty_subjects, faculty_name)
+            result = session.write_transaction(DBHelpers.subjects_belong_to_few_departments, faculty_name)
             print()
-            print(faculty_name + "\'s" + " courses:")
+            print("Courses:")
             print()
             print(DataFrame(result))
             
@@ -160,7 +160,7 @@ class StudentsInSubject(Command):
         sub = self.app.args.subject
         with self.app.db.driver1.session() as session:
             result = session.write_transaction(DBHelpers.students_in_subject, sub)
-            print("Students in " + sub)
+            print("Number of students in " + sub)
             print(DataFrame(result))
 
             
@@ -274,7 +274,7 @@ class SignUp(Command):
             if result:
                 print("Signing up successful")
 
-#not documented
+
 class GetStudentsAttends(Command):
     @staticmethod
     def register_arguments(parser):
@@ -292,7 +292,7 @@ class GetStudentsAttends(Command):
             result = session.write_transaction(DBHelpers.get_student_attends_courses, fname, lname, pesel, album)
             print(DataFrame(result))
 
-#not documented
+
 class GetStudentsCompleted(Command):
     @staticmethod
     def register_arguments(parser):
@@ -310,7 +310,7 @@ class GetStudentsCompleted(Command):
             result = session.write_transaction(DBHelpers.get_student_completed_courses, fname, lname, pesel, album)
             print(DataFrame(result))
 
-#not documented
+
 class CompleteCourse(Command):
     @staticmethod
     def register_arguments(parser):
@@ -351,7 +351,7 @@ class Syllabus(App):
         self.add_command("add_subject", AddSubject)
         self.add_command("sign_up",SignUp)
         self.add_command("complete_course",CompleteCourse)
-
+        self.add_command("few_faculty_subjects",FewDapartmentsSubjects)
 
 
 
