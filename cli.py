@@ -20,6 +20,24 @@ class GetStudentInfo(Command):
             print(DataFrame(result))
 
 
+class GetTutorInfo(Command):
+    @staticmethod
+    def register_arguments(parser):
+        parser.add_argument("--firstname", "-f", type=str, help="firstname of student", default=None, required=False)
+        parser.add_argument("--lastname", "-l", type=str, help="lastname of student", default=None, required=False)
+        parser.add_argument("--degree", "-d", type=str, help="degree of tutor", default=None, required=False)
+        parser.add_argument("--mail", "-m", type=str, help="tutor's mail to connect with him", default=None, required=False)
+
+    def run(self):
+        fname = self.app.args.firstname
+        lname = self.app.args.lastname
+        degree = self.app.args.degree
+        mail = self.app.args.mail
+        with self.app.db.driver1.session() as session:
+            result = session.write_transaction(DBHelpers.get_tutor_info, fname, lname, degree, mail)
+            print(DataFrame(result))
+
+
 class TutorsCourses(Command):
     @staticmethod
     def register_arguments(parser):
@@ -148,7 +166,6 @@ class StudentsInSubject(Command):
             
             
 class CoursesAvailableForStudents(Command):
-    """TODO"""
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--album", "-a", type=str, help="album number of student", required=True)
@@ -162,7 +179,6 @@ class CoursesAvailableForStudents(Command):
             print(DataFrame(result))
 
 class ShortestSubjectPath(Command):
-    """TODO"""
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--album", "-a", type=str, help="album number of student", required=True)
@@ -294,6 +310,22 @@ class GetStudentsCompleted(Command):
             result = session.write_transaction(DBHelpers.get_student_completed_courses, fname, lname, pesel, album)
             print(DataFrame(result))
 
+#not documented
+class CompleteCourse(Command):
+    @staticmethod
+    def register_arguments(parser):
+        parser.add_argument("--student_nr", "-s", type=str, help="student number", required=True)
+        parser.add_argument("--course_n", "-c", type=str, help="name of corse", required=True)
+
+    def run(self):
+        student = self.app.args.s
+        course = self.app.args.c
+        with self.app.db.driver1.session() as session:
+            result = session.write_transaction(DBHelpers.complete_course, course, student)
+            if result:
+                print("Signing up successful")
+
+
 class Syllabus(App):
     """Syllabus app."""
     def __init__(self):
@@ -302,6 +334,7 @@ class Syllabus(App):
 
     def register_commands(self):
         self.add_command("student_info", GetStudentInfo)
+        self.add_command("tutor_info", GetTutorInfo)
         self.add_command("tutors_courses", TutorsCourses)
         self.add_command("tutors_department", TutorsDepartment)
         self.add_command("tutors_who_teaches_many_subjects", TutorsWhoTeachesManySubject)
@@ -317,6 +350,7 @@ class Syllabus(App):
         self.add_command("get_students_completed", GetStudentsCompleted)
         self.add_command("add_subject", AddSubject)
         self.add_command("sign_up",SignUp)
+        self.add_command("complete_course",CompleteCourse)
 
 
 
