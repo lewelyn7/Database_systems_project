@@ -207,7 +207,7 @@ class DBHelpers:
     @staticmethod   
     def sign_up(tx, course_name, student_nr):
         if tx.run("MATCH (s:Student {student_nr : $number})-[r]->(n:Subject {name : $name}) RETURN count(r)", number = student_nr, name = course_name).single()[0] != 0:
-            print("Student has already been signed up for this course")
+            print("Student has already been signed up or completed this course")
             return False
         if(DBHelpers.missing_required_subjects(tx, course_name, student_nr) == 'ok'):
             tx.run("MATCH (s:Student {student_nr : $number}),(n:Subject {name : $name}) CREATE (s)-[r:Attends]->(n)", number = student_nr, name = course_name)
