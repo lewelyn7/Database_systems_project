@@ -44,8 +44,8 @@ def create_tutors(tx, lecturers_file, faculty_name):
     print(subjectnum)
     for row in csvimport:
         print(row[0])
-        tx.run("CREATE (a:Tutor) SET a.firstname = $firstname, a.lastname = $lastname, a.mail = $mail, a.degree = $degree", firstname=row[1], lastname=row[0], mail=row[3], degree=row[2])
-        tx.run("MATCH (a:Tutor { firstname: $firstname, lastname: $lastname}), (b:Faculty { name : $faculty }) CREATE (a)-[r:WorksIn]->(b)", firstname=row[1], lastname=row[0], faculty=faculty_name)
+        # tx.run("CREATE (a:Tutor) SET a.firstname = $firstname, a.lastname = $lastname, a.mail = $mail, a.degree = $degree", firstname=row[1], lastname=row[0], mail=row[3], degree=row[2])
+        # tx.run("MATCH (a:Tutor { firstname: $firstname, lastname: $lastname}), (b:Faculty { name : $faculty }) CREATE (a)-[r:WorksIn]->(b)", firstname=row[1], lastname=row[0], faculty=faculty_name)
         
         numberofsubjects = randint(1,5)
         for i in range(numberofsubjects):
@@ -108,12 +108,13 @@ def set_attends_rel(tx, filename):
 if __name__ == '__main__':
 
     with driver1.session() as session:
+        pass
         # session.write_transaction(create_subjects, "przedmioty.csv", "Informatyki")
         # session.write_transaction(create_subjects, "przedmioty2.csv", "Elektroniki")
         # session.write_transaction(create_subjects, "przedmioty3.csv", "Fizyki Medycznej")
-        # session.write_transaction(create_tutors, "wykladowcy.csv", "Informatyki")
-        # session.write_transaction(create_tutors, "wykladowcy2.csv", "Elektroniki")
-        # session.write_transaction(create_tutors, "wykladowcy3.csv", "Fizyki Medycznej")
+        session.write_transaction(create_tutors, "data/wykladowcy.csv", "Informatyki")
+        session.write_transaction(create_tutors, "data/wykladowcy2.csv", "Elektroniki")
+        session.write_transaction(create_tutors, "data/wykladowcy3.csv", "Fizyki Medycznej")
         # session.write_transaction(add_students, "students.csv")
         # session.write_transaction(sign_students, "students.csv")
-        set_attends_rel(session, "data/students.csv")
+        # set_attends_rel(session, "data/students.csv")

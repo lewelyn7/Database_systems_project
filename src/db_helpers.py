@@ -231,6 +231,7 @@ class DBHelpers:
 if __name__ == "__main__":
     db = DBHelpers("bolt://bazy.flemingo.ovh:7687", ("neo4j", "marcjansiwikania"))
     with db.driver1.session() as session:
+        pass
         # print(session.write_transaction(DBHelpers.tutors_courses,"Robert", "Marcjan"))
         # print(session.write_transaction(DBHelpers.tutors_department,"Robert", "Marcjan"))
         # print(session.write_transaction(DBHelpers.tutors_who_teaches_many_subjects,4))
