@@ -75,7 +75,7 @@ class TutorsDepartment(Command):
 class TutorsWhoTeachesManySubject(Command):
     @staticmethod
     def register_arguments(parser):
-        parser.add_argument("--number", "-n", type=str, help="number of subjects to compare", required=True)
+        parser.add_argument("--number", "-n", type=int, help="number of subjects to compare", required=True)
 
     def run(self):
         number = self.app.args.number

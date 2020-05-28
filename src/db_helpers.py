@@ -241,14 +241,14 @@ if __name__ == "__main__":
         pass
         # print(session.write_transaction(DBHelpers.tutors_courses,"Robert", "Marcjan"))
         # print(session.write_transaction(DBHelpers.tutors_department,"Robert", "Marcjan"))
-        # print(session.write_transaction(DBHelpers.tutors_who_teaches_many_subjects,4))
+        print(session.write_transaction(DBHelpers.tutors_who_teaches_many_subjects,4))
         # print(session.write_transaction(DBHelpers.required_subjects, "Fizyka 1"))
         # print(session.write_transaction(DBHelpers.missing_required_subjects, "Cytofizjologia", "220195"))
 
         # print(session.write_transaction(DBHelpers.missing_required_subjects, "Metody i algorytmy sztucznej inteligencji", "220195"))
         # print(session.write_transaction(DBHelpers.faculty_subjects, "Elektroniki"))
         # print(session.write_transaction(DBHelpers.students_in_subject, "Cytofizjologia"))
-        print(session.write_transaction(DBHelpers.courses_available_for_student, "220083"))
+        # print(session.write_transaction(DBHelpers.courses_available_for_student, "220083"))
         # print(session.write_transaction(DBHelpers.get_student_info, "Alicja"))
         # print(session.write_transaction(DBHelpers.shortest_subject_path, "220195", "Fizyka 1"))
         # print(session.write_transaction(DBHelpers.subjects_belong_to_few_departments))
