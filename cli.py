@@ -244,7 +244,7 @@ class AddSubject(Command):
                 
                 
                 
-class SingUp(Command):
+class SignUp(Command):
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--student_nr", "-s", type=str, help="student number", required=True)
