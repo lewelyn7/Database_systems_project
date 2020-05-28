@@ -2,6 +2,6 @@
 
 baza danych uniwersytetu
 
-Neo4J i Python
+Oparta na Neo4J i Python
 
-Więcej w dokumentacji
+Więcej informacji znajduje się w dokumentacji
