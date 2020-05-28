@@ -291,6 +291,7 @@ class GetStudentsAttends(Command):
         with self.app.db.driver1.session() as session:
             result = session.write_transaction(DBHelpers.get_student_attends_courses, fname, lname, pesel, album)
             print(DataFrame(result))
+            
 
 
 class GetStudentsCompleted(Command):

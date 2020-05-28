@@ -77,7 +77,7 @@ class DBHelpers:
 
     @staticmethod
     def courses_available_for_student(tx, album_nr): # returns courses available for student based on his completed courses 
-        courses = tx.run("match (s:Student {student_nr:$num})-[:Completed]->(comp:Subject) with collect(comp) as subs, s unwind subs as sub match (sub)<-[:Require]-(f:Subject) where f.free_places>0 and not f in subs return distinct f", num=album_nr)
+        courses = tx.run("match (s:Student {student_nr:$num})-[:Completed]->(comp:Subject),(s)-[:Attends]->(att:Subject) with collect(comp) as subs, s, collect(att) as attry unwind subs as sub match (sub)<-[:Require]-(f:Subject) where f.free_places>0 and not f in subs and not f in attry return distinct f", num=album_nr)
         coursertier1=tx.run("match (s:Subject {tier:1}) where s.free_places>0 return s")
         return [course['f'] for course in courses]+[cours['s'] for cours in coursertier1]
 
