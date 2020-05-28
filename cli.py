@@ -178,6 +178,7 @@ class CoursesAvailableForStudents(Command):
             print("Available courses:")
             print(DataFrame(result))
 
+
 class ShortestSubjectPath(Command):
     @staticmethod
     def register_arguments(parser):

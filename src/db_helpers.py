@@ -240,8 +240,8 @@ if __name__ == "__main__":
     db = DBHelpers("bolt://bazy.flemingo.ovh:7687", ("neo4j", "marcjansiwikania"))
     with db.driver1.session() as session:
         pass
-        # print(session.write_transaction(DBHelpers.tutors_courses,"Robert", "Marcjan"))
-        # print(session.write_transaction(DBHelpers.tutors_department,"Robert", "Marcjan"))
+        # print(session.write_transaction(DBHelpers.tutors_courses,"Piotr", "Nowak"))
+        # print(session.write_transaction(DBHelpers.tutors_department,"Piotr", "Nowak"))
         # print(session.write_transaction(DBHelpers.tutors_who_teaches_many_subjects,4))
         print(session.write_transaction(DBHelpers.required_subjects, "Fizyka 1"))
         # print(session.write_transaction(DBHelpers.missing_required_subjects, "Cytofizjologia", "220195"))
@@ -256,7 +256,7 @@ if __name__ == "__main__":
         # print(session.write_transaction(DBHelpers.add_student, "Krystyna", "Błaszczyk", "82275931473", "320109"))
         # print(session.write_transaction(DBHelpers.add_tutor, "prof.", "Natalia", "Brzozowska", "nbrzozowska@agh.edu.pl", "Informatyki"))
         # print(session.write_transaction(DBHelpers.add_subject,"Metody i algorytmy sztucznej inteligencji",25,"Informatyki",1 ))
-        # print(session.write_transaction(DBHelpers.get_tutor_info, "Robert"))
+        # print(session.write_transaction(DBHelpers.get_tutor_info, "Piotr"))
 
         # print(session.write_transaction(DBHelpers.get_student_completed_courses, "Alicja"))
         # print(session.write_transaction(DBHelpers.get_student_attends_courses, "Alicja"))
