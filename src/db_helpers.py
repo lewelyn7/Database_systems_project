@@ -210,7 +210,7 @@ class DBHelpers:
             print("Student has already been signed up for this course")
             return False
         if(DBHelpers.missing_required_subjects(tx, course_name, student_nr) == 'ok'):
-            tx.run("Create (s:Student {student_nr : $number})-[:Attends]->(n:Subject {name : $name})", number = student_nr, name = course_name)
+            tx.run("MATCH (s:Student {student_nr : $number}),(n:Subject {name : $name}) CREATE (s)-[r:Attends]->(n)", number = student_nr, name = course_name)
             return True
         else:
             print("Student cannot be signed up - requirements not met")
@@ -223,7 +223,7 @@ class DBHelpers:
             print("Wrong given arguments - cannot complete course")
             return False
         else:
-            tx.run("CREATE (s:Student {student_nr : $number})-[r:Completed]->(n:Subject {name : $name})", number = student_nr, name = course_name)
+            tx.run("MATCH (s:Student {student_nr : $number}),(n:Subject {name : $name}) CREATE (s)-[r:Completed]->(n)", number = student_nr, name = course_name)
             tx.run("MATCH (s:Student {student_nr : $number})-[r:Attends]->(n:Subject {name : $name}) DELETE r ", number = student_nr, name = course_name)
             return True
 
@@ -235,9 +235,9 @@ if __name__ == "__main__":
         # print(session.write_transaction(DBHelpers.tutors_department,"Robert", "Marcjan"))
         # print(session.write_transaction(DBHelpers.tutors_who_teaches_many_subjects,4))
         # print(session.write_transaction(DBHelpers.required_subjects, "Fizyka 1"))
-        print(session.write_transaction(DBHelpers.missing_required_subjects, "Cytofizjologia", "220117"))
+        # print(session.write_transaction(DBHelpers.missing_required_subjects, "Cytofizjologia", "220117"))
 
-        print(session.write_transaction(DBHelpers.missing_required_subjects, "Metody i algorytmy sztucznej inteligencji", "220117"))
+        # print(session.write_transaction(DBHelpers.missing_required_subjects, "Metody i algorytmy sztucznej inteligencji", "220117"))
         # print(session.write_transaction(DBHelpers.faculty_subjects, "Elektroniki"))
         # print(session.write_transaction(DBHelpers.students_in_subject, "Cytofizjologia"))
         # print(session.write_transaction(DBHelpers.courses_available_for_student, "220083"))
@@ -246,10 +246,10 @@ if __name__ == "__main__":
         # print(session.write_transaction(DBHelpers.subjects_belong_to_few_departments))
         # print(session.write_transaction(DBHelpers.add_student, "Krystyna", "Błaszczyk", "82275931473", "320109"))
         # print(session.write_transaction(DBHelpers.add_tutor, "prof.", "Natalia", "Brzozowska", "nbrzozowska@agh.edu.pl", "Informatyki"))
-        # print(session.write_transaction(DBHelpers.add_subject,"Test4",0,"Informatyki",4,"Test" ))
+        # print(session.write_transaction(DBHelpers.add_subject,"Metody i algorytmy sztucznej inteligencji",25,"Informatyki",1 ))
         # print(session.write_transaction(DBHelpers.get_tutor_info, "Robert"))
 
         # print(session.write_transaction(DBHelpers.get_student_completed_courses, "Alicja"))
         # print(session.write_transaction(DBHelpers.get_student_attends_courses, "Alicja"))
-        print(session.write_transaction(DBHelpers.sign_up,"Metody i algorytmy sztucznej inteligencji", "220117"))
-        print(session.write_transaction(DBHelpers.complete_course,"Metody i algorytmy sztucznej inteligencji", "220117"))
+        # print(session.write_transaction(DBHelpers.sign_up,"Metody i algorytmy sztucznej inteligencji", "220117"))
+        # print(session.write_transaction(DBHelpers.complete_course,"Metody i algorytmy sztucznej inteligencji", "220117"))
