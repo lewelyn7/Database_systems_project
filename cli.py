@@ -184,8 +184,7 @@ class ShortestSubjectPath(Command):
     def register_arguments(parser):
         parser.add_argument("--album", "-a", type=str, help="album number of student", required=True)
         parser.add_argument("--subject", "-s", type=str, help="subject to be completed", required=True)
-
-    
+  
     def run(self):
         alb = self.app.args.album
         sub = self.app.args.subject
@@ -273,7 +272,7 @@ class SignUp(Command):
         with self.app.db.driver1.session() as session:
             result = session.write_transaction(DBHelpers.sign_up, course, student)
             if result:
-                print("Signing up successful")
+                print("Signing up successful.")
 
 
 class GetStudentsAttends(Command):
