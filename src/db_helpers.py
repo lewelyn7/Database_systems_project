@@ -28,7 +28,8 @@ class DBHelpers:
     @staticmethod 
     def required_subjects(tx, sub): # returns all required subject needed to start specified subject
         required = tx.run("match (n:Subject {name:$sub}), (s:Subject {tier: 1}) with n,collect(s) as col unwind col as c with collect( case  when n in col then [] else nodes(shortestPath((c)-[:Require*]-(n))) end) as result,n unwind result as res return min(res) as n", sub = sub)
-        return [item['n'] for item in required]
+        a= [item['n'] for item in required]
+        return a[0]
     
     @staticmethod # returns whether or not student can attend to that course
     def missing_required_subjects(tx, sub, album_nr):
@@ -241,8 +242,8 @@ if __name__ == "__main__":
         pass
         # print(session.write_transaction(DBHelpers.tutors_courses,"Robert", "Marcjan"))
         # print(session.write_transaction(DBHelpers.tutors_department,"Robert", "Marcjan"))
-        print(session.write_transaction(DBHelpers.tutors_who_teaches_many_subjects,4))
-        # print(session.write_transaction(DBHelpers.required_subjects, "Fizyka 1"))
+        # print(session.write_transaction(DBHelpers.tutors_who_teaches_many_subjects,4))
+        print(session.write_transaction(DBHelpers.required_subjects, "Fizyka 1"))
         # print(session.write_transaction(DBHelpers.missing_required_subjects, "Cytofizjologia", "220195"))
 
         # print(session.write_transaction(DBHelpers.missing_required_subjects, "Metody i algorytmy sztucznej inteligencji", "220195"))
