@@ -63,7 +63,7 @@ class DBHelpers:
 
         if(len(lis2)==0):
             sh_path=lis1
-        return sh_path 
+        return sh_path[0]
     @staticmethod
     def faculty_subjects(tx, faculty_name): # Subjects which belong to a specified department
         subs = tx.run("MATCH (:Faculty {name : $faculty})-[r:BelongsTo]-(b) RETURN b", faculty = faculty_name)
