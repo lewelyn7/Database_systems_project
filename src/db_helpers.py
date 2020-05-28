@@ -76,7 +76,7 @@ class DBHelpers:
 
     @staticmethod
     def courses_available_for_student(tx, album_nr): # returns courses available for student based on his completed courses 
-        courses = tx.run("match (s:Student {student_nr:$num})-[:Completed]->(comp:Subject) with collect(comp) as subs, s unwind subs as sub match (sub)<-[:Require]-(f:Subject) where not f in subs return distinct f", num=album_nr)
+        courses = tx.run("match (s:Student {student_nr:$num})-[:Completed]->(comp:Subject) with collect(comp) as subs, s unwind subs as sub match (sub)<-[:Require]-(f:Subject) where f.free_places>0 and not f in subs return distinct f", num=album_nr)
         coursertier1=tx.run("match (s:Subject {tier:1}) where s.free_places>0 return s")
         return [course['f'] for course in courses]+[cours['s'] for cours in coursertier1]
 
@@ -247,7 +247,7 @@ if __name__ == "__main__":
         # print(session.write_transaction(DBHelpers.missing_required_subjects, "Metody i algorytmy sztucznej inteligencji", "220195"))
         # print(session.write_transaction(DBHelpers.faculty_subjects, "Elektroniki"))
         # print(session.write_transaction(DBHelpers.students_in_subject, "Cytofizjologia"))
-        # print(session.write_transaction(DBHelpers.courses_available_for_student, "220083"))
+        print(session.write_transaction(DBHelpers.courses_available_for_student, "220083"))
         # print(session.write_transaction(DBHelpers.get_student_info, "Alicja"))
         # print(session.write_transaction(DBHelpers.shortest_subject_path, "220195", "Fizyka 1"))
         # print(session.write_transaction(DBHelpers.subjects_belong_to_few_departments))
@@ -259,4 +259,4 @@ if __name__ == "__main__":
         # print(session.write_transaction(DBHelpers.get_student_completed_courses, "Alicja"))
         # print(session.write_transaction(DBHelpers.get_student_attends_courses, "Alicja"))
         # print(session.write_transaction(DBHelpers.sign_up,"Metody i algorytmy sztucznej inteligencji", "220083"))
-        print(session.write_transaction(DBHelpers.complete_course,"Metody i algorytmy sztucznej inteligencji", "220083"))
+        # print(session.write_transaction(DBHelpers.complete_course,"Metody i algorytmy sztucznej inteligencji", "220083"))
