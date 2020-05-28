@@ -272,7 +272,7 @@ class SignUp(Command):
         with self.app.db.driver1.session() as session:
             result = session.write_transaction(DBHelpers.sign_up, course, student)
             if result:
-                print("Signing up successful.")
+                print("Signing up successful")
 
 
 class GetStudentsAttends(Command):
