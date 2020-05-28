@@ -267,8 +267,8 @@ class SignUp(Command):
         parser.add_argument("--course_n", "-c", type=str, help="name of corse", required=True)
 
     def run(self):
-        student = self.app.args.s
-        course = self.app.args.c
+        student = self.app.args.student_nr
+        course = self.app.args.course_n
         with self.app.db.driver1.session() as session:
             result = session.write_transaction(DBHelpers.sign_up, course, student)
             if result:
@@ -318,8 +318,8 @@ class CompleteCourse(Command):
         parser.add_argument("--course_n", "-c", type=str, help="name of corse", required=True)
 
     def run(self):
-        student = self.app.args.s
-        course = self.app.args.c
+        student = self.app.args.student_nr
+        course = self.app.args.course_n
         with self.app.db.driver1.session() as session:
             result = session.write_transaction(DBHelpers.complete_course, course, student)
             if result:
