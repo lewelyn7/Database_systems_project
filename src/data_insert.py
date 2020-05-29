@@ -2,9 +2,15 @@ from neo4j import GraphDatabase
 from random import randint
 import csv
 
-driver1 = GraphDatabase.driver("bolt://bazy.flemingo.ovh:7687", auth=("neo4j", "marcjansiwikania"))
 
 def create_subjects(tx, filename, faculty_name):
+    """
+    Creates subjects and randomly creates Requires relation between them.
+    Subjects are divided into tiers. Subject from higher can only require subjects from lower tier.
+    As a result, we can be sure that there aren't any cycles in graph structure, because this
+    would make some of the courses impossible to sign up.
+    """
+
     infile = open(filename, "r")
     csvimport = csv.reader(infile)
 
@@ -13,7 +19,8 @@ def create_subjects(tx, filename, faculty_name):
         result = tx.run("MATCH (n:Subject { name : $name }) RETURN n", name=row[0])
         if not result.single():
             rand_tier = randint(1, 7)
-            tx.run("CREATE (a:Subject) SET a.name = $name, a.tier = $tier", name=row[0], tier = rand_tier)
+            rand_free_places = randint(15,25)
+            tx.run("CREATE (a:Subject) SET a.name = $name, a.tier = $tier, a.free_places=$free", name=row[0], tier = rand_tier, free=rand_free_places)
             tx.run("MATCH (a:Subject { name : $name }),(b:Faculty { name : $faculty }) CREATE (a)-[r:BelongsTo]->(b)", name=row[0], faculty=faculty_name)
         else:
             tx.run("MATCH (a:Subject { name : $name }),(b:Faculty { name : $faculty }) CREATE (a)-[r:BelongsTo]->(b)", name=row[0], faculty=faculty_name)
@@ -27,7 +34,6 @@ def create_subjects(tx, filename, faculty_name):
     infile = open(filename, "r")
     csvimport = csv.reader(infile)
     for row in csvimport:
-        i = randint(0, 6) #zmieniany zakres w zależności od poziomu
         tx.run("Match (a:Subject), (b:Subject) where a.name = $name and a.tier = 2 and id(b) = $id Create (a)-[r:Require]->(b)", name = row[0], id = basics_1[randint(0, len(basics_1)-1)]['id'])
         tx.run("Match (a:Subject), (b:Subject) where a.name = $name and a.tier = 3 and id(b) = $id Create (a)-[r:Require]->(b)", name = row[0], id = basics_2[randint(0, len(basics_2)-1)]['id'])
         tx.run("Match (a:Subject), (b:Subject) where a.name = $name and a.tier = 4 and id(b) = $id Create (a)-[r:Require]->(b)", name = row[0], id = basics_3[randint(0, len(basics_3)-1)]['id'])
@@ -37,6 +43,7 @@ def create_subjects(tx, filename, faculty_name):
 
 
 def create_tutors(tx, lecturers_file, faculty_name):
+    """Creates tutors and randomly make them teach several courses."""
     infile = open(lecturers_file, "r")  
     csvimport = csv.reader(infile)
     subjectnum = tx.run("MATCH (a:Subject)-[r:BelongsTo]->(b:Faculty { name : $faculty }) WITH count(a) AS value RETURN value", faculty=faculty_name).single()[0]
@@ -44,27 +51,29 @@ def create_tutors(tx, lecturers_file, faculty_name):
     print(subjectnum)
     for row in csvimport:
         print(row[0])
-        # tx.run("CREATE (a:Tutor) SET a.firstname = $firstname, a.lastname = $lastname, a.mail = $mail, a.degree = $degree", firstname=row[1], lastname=row[0], mail=row[3], degree=row[2])
-        # tx.run("MATCH (a:Tutor { firstname: $firstname, lastname: $lastname}), (b:Faculty { name : $faculty }) CREATE (a)-[r:WorksIn]->(b)", firstname=row[1], lastname=row[0], faculty=faculty_name)
+        tx.run("CREATE (a:Tutor) SET a.firstname = $firstname, a.lastname = $lastname, a.mail = $mail, a.degree = $degree", firstname=row[1], lastname=row[0], mail=row[3], degree=row[2])
+        tx.run("MATCH (a:Tutor { firstname: $firstname, lastname: $lastname}), (b:Faculty { name : $faculty }) CREATE (a)-[r:WorksIn]->(b)", firstname=row[1], lastname=row[0], faculty=faculty_name)
         
         numberofsubjects = randint(1,5)
         for i in range(numberofsubjects):
             randomnum = randint(0, subjectnum-1)
             tx.run("MATCH (a:Tutor { firstname: $firstname, lastname: $lastname}), (s:Subject { name : $subject }) CREATE (a)-[r:Teaches]->(s)", firstname=row[1], lastname=row[0], subject=subjects[randomnum]["a"]["name"])
 def add_students(tx, filename):
+    """Creates students from csv file."""
     infile = open(filename, "r")
     csvimport = csv.reader(infile)
     for row in csvimport:
         tx.run("CREATE (s:Student) SET s.firstname = $firstname, s.lastname = $lastname, s.pesel = $pesel, s.student_nr= $student_nr ", firstname=row[0], lastname=row[1], pesel=row[2], student_nr=row[3])
 
 def sign_students(tx, filename):
+    """Randomly creates Completed relation between students and courses."""
+
     infile = open(filename, "r")
     csvimport = csv.reader(infile)
     tiers = []
     for i in range(1,8):
         tiers.append(tx.run("MATCH (s:Subject { tier : $tier}) RETURN s.name as id", tier=i).data())
     print(tiers)
-    # print(tiers)
     for row in csvimport:
         print(row[2], end=' ')
         randnum = randint(1,100)
@@ -87,8 +96,9 @@ def sign_students(tx, filename):
                     print(courses[randomcourse])
                     tx.run("MATCH (s:Student {pesel: $pesel}), (b:Subject) WHERE b.name=$subid CREATE (s)-[r:Completed]->(b)", pesel=row[2], subid=courses[randomcourse])
 
-#not documented
+
 def set_attends_rel(tx, filename):
+    """Randomly creates Attends relation between students and courses"""
     infile = open(filename, "r")
     csvimport = csv.reader(infile)
 
@@ -106,15 +116,15 @@ def set_attends_rel(tx, filename):
 
         
 if __name__ == '__main__':
+    driver1 = GraphDatabase.driver("bolt://bazy.flemingo.ovh:7687", auth=("neo4j", "marcjansiwikania"))
 
     with driver1.session() as session:
-        pass
-        # session.write_transaction(create_subjects, "przedmioty.csv", "Informatyki")
-        # session.write_transaction(create_subjects, "przedmioty2.csv", "Elektroniki")
-        # session.write_transaction(create_subjects, "przedmioty3.csv", "Fizyki Medycznej")
+        session.write_transaction(create_subjects, "data/przedmioty.csv", "Informatyki")
+        session.write_transaction(create_subjects, "data/przedmioty2.csv", "Elektroniki")
+        session.write_transaction(create_subjects, "data/przedmioty3.csv", "Fizyki Medycznej")
         session.write_transaction(create_tutors, "data/wykladowcy.csv", "Informatyki")
         session.write_transaction(create_tutors, "data/wykladowcy2.csv", "Elektroniki")
         session.write_transaction(create_tutors, "data/wykladowcy3.csv", "Fizyki Medycznej")
-        # session.write_transaction(add_students, "students.csv")
-        # session.write_transaction(sign_students, "students.csv")
-        # set_attends_rel(session, "data/students.csv")
+        session.write_transaction(add_students, "data/students.csv")
+        session.write_transaction(sign_students, "data/students.csv")
+        set_attends_rel(session, "data/students.csv")
