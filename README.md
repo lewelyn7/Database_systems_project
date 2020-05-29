@@ -4,4 +4,4 @@ baza danych uniwersytetu
 
 Oparta na Neo4J i Python
 
-Więcej informacji znajduje się w pliku dokumentacja.pdf
+Więcej informacji znajduje się w pliku [dokumentacja.pdf](./dokumentacja.pdf)
