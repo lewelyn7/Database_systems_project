@@ -3,6 +3,8 @@ from pandas import DataFrame
 from src.db_helpers import DBHelpers
 
 class GetStudentInfo(Command):
+    """Prints personal informations about student."""
+
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--firstname", "-f", type=str, help="firstname of student", default=None, required=False)
@@ -21,6 +23,7 @@ class GetStudentInfo(Command):
 
 
 class GetTutorInfo(Command):
+    """Prints personal informations about tutor."""
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--firstname", "-f", type=str, help="firstname of student", default=None, required=False)
@@ -39,6 +42,7 @@ class GetTutorInfo(Command):
 
 
 class TutorsCourses(Command):
+    """Prints courses tought by tutor."""
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--fname", "-f", type=str, help="firstname of tutor", required=True)
@@ -56,6 +60,7 @@ class TutorsCourses(Command):
 
             
 class TutorsDepartment(Command):
+    """Prints faculty in which tutor works."""
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--fname", "-f", type=str, help="firstname of tutor", required=True)
@@ -73,6 +78,7 @@ class TutorsDepartment(Command):
 
             
 class TutorsWhoTeachesManySubject(Command):
+    """Prints tutors who teches at least n subjects."""
     @staticmethod
     def register_arguments(parser):
         parser.add_argument("--number", "-n", type=int, help="number of subjects to compare", required=True)
@@ -328,7 +334,11 @@ class CompleteCourse(Command):
 
 
 class Syllabus(App):
-    """Syllabus app."""
+    """
+    Usage: python cli.py <command_name> [OPTIONS].
+    If you need help about particular command type: python cli.py <command_name> -h
+    """
+
     def __init__(self):
         super().__init__()
         self.db = DBHelpers("bolt://bazy.flemingo.ovh:7687", ("neo4j", "marcjansiwikania"))
@@ -354,7 +364,7 @@ class Syllabus(App):
         self.add_command("complete_course",CompleteCourse)
         self.add_command("few_faculty_subjects",FewDapartmentsSubjects)
 
-
+# TODO Trzeba dodac opsisy komend do konca
 
 if __name__ == "__main__":
     app = Syllabus()
