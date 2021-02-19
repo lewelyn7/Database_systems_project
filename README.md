@@ -1,7 +1,6 @@
 # Database_systems_project
 
-baza danych uniwersytetu
+Graph database containing data about courses, lecturers and students at the university. 
 
-Oparta na Neo4J i Python
-
-Więcej informacji znajduje się w pliku [dokumentacja.pdf](./dokumentacja.pdf)
+Based on Neo4J i Python.
+More information: [dokumentacja.pdf](./dokumentacja.pdf)
